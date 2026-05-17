@@ -16,6 +16,9 @@ outputs:
 
 # SEO: Keywords for the entire site
 params:
+  analytics:
+    google:
+      SiteVerificationTag: "pMC060M3OeUsp0smKjassCkHJrqqMeImAL2tgeNzaws"
   env: "production"
   description: "Swarnim Tripathi — Machine Learning Engineer specializing in ML Systems, Inference Optimization, and PyTorch internals. Open-source contributor to PyTorch. Undergrad at VIT Chennai."
   author: "Swarnim Tripathi"
