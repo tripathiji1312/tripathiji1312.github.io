@@ -1,0 +1,67 @@
+baseURL: "https://swarnimtripathi.github.io/"
+title: "Swarnim Tripathi"
+theme: "PaperMod"
+
+# This is required to make the Search functionality work
+outputs:
+  home:
+    - HTML
+    - RSS
+    - JSON 
+
+params:
+  env: "production"
+  description: "Machine Learning Engineer | ML Systems & AI Research"
+  author: "Swarnim Tripathi"
+  
+  # UI & Aesthetics
+  defaultTheme: "dark"           # Dark mode looks much better for tech blogs
+  disableThemeToggle: false      # Allows users to switch to light mode if they want
+  ShowReadingTime: true          # Shows "5 min read"
+  ShowCodeCopyButtons: true      # Adds a copy button to your C++/Python code blocks!
+  ShowBreadCrumbs: true          # Shows Home > Posts > Title at the top
+  ShowPostNavLinks: true         # Suggests next/previous posts at the bottom
+  disableScrollToTop: false      # Adds a neat arrow to scroll back up
+
+  # The Landing Page (Profile Mode)
+  profileMode:
+    enabled: true
+    title: "Swarnim Tripathi"
+    subtitle: "Machine Learning Engineer - ML Systems • Inference Optimization • PyTorch \nUndergrad @ VIT Chennai."
+    imageUrl: "https://github.com/tripathiji1312.png" # Automatically fetches your GitHub picture!
+    imageWidth: 150
+    imageHeight: 150
+    buttons:
+      - name: "Read my Research & Posts"
+        url: "/posts/"
+      - name: "Search"
+        url: "/search/"
+
+  # Your Social Links
+  socialIcons:
+    - name: "github"
+      url: "https://github.com/tripathiji1312"
+    - name: "linkedin"
+      url: "https://linkedin.com/in/swarnim-trip"
+    - name: "email"
+      url: "mailto:swarnim.tr@gmail.com"
+
+# The Top Navigation Menu
+menu:
+  main:
+    - identifier: "posts"
+      name: "Posts"
+      url: "/posts/"
+      weight: 10
+    - identifier: "archives"
+      name: "Archive"
+      url: "/archives/"
+      weight: 20
+    - identifier: "search"
+      name: "Search"
+      url: "/search/"
+      weight: 30
+    - identifier: "tags"
+      name: "Tags"
+      url: "/tags/"
+      weight: 40

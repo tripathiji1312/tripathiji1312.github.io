@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="dark">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Deconstructing my PyTorch ATen PR: What happens when you index a Tensor? | Swarnim Tripathi</title>
+<meta name="keywords" content="PyTorch, C&#43;&#43;, ML Systems">
+<meta name="description" content="Whenever we write tensor[0] in Python, it feels like magic. But under the hood, PyTorch has to route this operation through a massive C&#43;&#43; dispatching engine to figure out if this should run on a CPU or a CUDA GPU&hellip;
+The Bug: Empty Indices Crashing index.Tensor
+The issue behind this PR was deceptively small: torch.ops.aten.index.Tensor(t, []) could crash instead of failing cleanly when the index list was empty. In other words, PyTorch was being asked to perform tensor indexing with no actual indices, and one of the internal code paths did not defend itself against that case.">
+<meta name="author" content="Swarnim Tripathi">
+<link rel="canonical" href="http://localhost:1313/posts/pytorch-aten-dispatch/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.cd9298b33628769aa1bc1acebbbfd7aa11ce81dfe03484d479e1907760249a1d.css" integrity="sha256-zZKYszYodpqhvBrOu7/XqhHOgd/gNITUeeGQd2Akmh0=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/pytorch-aten-dispatch/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "light") {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+<meta property="og:url" content="http://localhost:1313/posts/pytorch-aten-dispatch/">
+  <meta property="og:site_name" content="Swarnim Tripathi">
+  <meta property="og:title" content="Deconstructing my PyTorch ATen PR: What happens when you index a Tensor?">
+  <meta property="og:description" content="Whenever we write tensor[0] in Python, it feels like magic. But under the hood, PyTorch has to route this operation through a massive C&#43;&#43; dispatching engine to figure out if this should run on a CPU or a CUDA GPU…
+The Bug: Empty Indices Crashing index.Tensor The issue behind this PR was deceptively small: torch.ops.aten.index.Tensor(t, []) could crash instead of failing cleanly when the index list was empty. In other words, PyTorch was being asked to perform tensor indexing with no actual indices, and one of the internal code paths did not defend itself against that case.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-05-17T01:00:00+05:30">
+    <meta property="article:modified_time" content="2026-05-17T01:00:00+05:30">
+    <meta property="article:tag" content="PyTorch">
+    <meta property="article:tag" content="C&#43;&#43;">
+    <meta property="article:tag" content="ML Systems">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Deconstructing my PyTorch ATen PR: What happens when you index a Tensor?">
+  <meta name="twitter:description" content="Whenever we write tensor[0] in Python, it feels like magic. But under the hood, PyTorch has to route this operation through a massive C&#43;&#43; dispatching engine to figure out if this should run on a CPU or a CUDA GPU…
+The Bug: Empty Indices Crashing index.Tensor The issue behind this PR was deceptively small: torch.ops.aten.index.Tensor(t, []) could crash instead of failing cleanly when the index list was empty. In other words, PyTorch was being asked to perform tensor indexing with no actual indices, and one of the internal code paths did not defend itself against that case.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "http://localhost:1313/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Deconstructing my PyTorch ATen PR: What happens when you index a Tensor?",
+      "item": "http://localhost:1313/posts/pytorch-aten-dispatch/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Deconstructing my PyTorch ATen PR: What happens when you index a Tensor?",
+  "name": "Deconstructing my PyTorch ATen PR: What happens when you index a Tensor?",
+  "description": "Whenever we write tensor[0] in Python, it feels like magic. But under the hood, PyTorch has to route this operation through a massive C++ dispatching engine to figure out if this should run on a CPU or a CUDA GPU\u0026hellip;\nThe Bug: Empty Indices Crashing index.Tensor The issue behind this PR was deceptively small: torch.ops.aten.index.Tensor(t, []) could crash instead of failing cleanly when the index list was empty. In other words, PyTorch was being asked to perform tensor indexing with no actual indices, and one of the internal code paths did not defend itself against that case.\n",
+  "keywords": [
+    "PyTorch", "C++", "ML Systems"
+  ],
+  "articleBody": "Whenever we write tensor[0] in Python, it feels like magic. But under the hood, PyTorch has to route this operation through a massive C++ dispatching engine to figure out if this should run on a CPU or a CUDA GPU…\nThe Bug: Empty Indices Crashing index.Tensor The issue behind this PR was deceptively small: torch.ops.aten.index.Tensor(t, []) could crash instead of failing cleanly when the index list was empty. In other words, PyTorch was being asked to perform tensor indexing with no actual indices, and one of the internal code paths did not defend itself against that case.\nThat sounds like a corner case, but it is exactly the kind of corner case that matters in a system like PyTorch. Indexing is one of the most heavily used operations in the entire stack, and even a tiny inconsistency can surface in surprising places, especially once you start mixing Python frontend code, ATen internals, and backend-specific behavior.\nTracing the Dispatch: Python to ATen When you write something like x[0] in Python, the operation does not stay in Python for long. It is lowered into ATen, PyTorch’s internal tensor library, where the framework decides how to interpret the indexing request and which backend should handle it.\nThat path has to answer a lot of questions:\nIs the index list valid? Are we doing basic or advanced indexing? Do the indices describe a contiguous subspace? Should the implementation materialize any optional indices first? The bug in this PR lived in that validation layer. The problem was not really about a specific device or dtype. It was about what happens when the list of indices is empty and the internal helpers assume there is at least one meaningful tensor to inspect.\nThe Solution: Fixing IndexingUtils.h and TensorAdvancedIndexing.cpp The PR made two functional changes in the C++ code and one regression test in Python.\nFirst, IndexingUtils.h was updated so that the helper that checks whether the indexed tensors form a contiguous subspace handles an empty set safely. That is the kind of guard that looks boring in isolation, but it is exactly what keeps an internal helper from wandering into undefined behavior when the input is degenerate.\nSecond, TensorAdvancedIndexing.cpp now checks the meta path for an empty index list and raises a clear IndexError with the message at least one index must be provided. That is the right failure mode here: fail early, fail explicitly, and fail in a place that tells the caller what is wrong.\nThird, the Python test suite gained a regression test that exercises the exact empty-index call:\nwith self.assertRaisesRegex(IndexError, \"at least one index must be provided\"): torch.ops.aten.index.Tensor(t, []) That test is doing more than checking an error message. It locks in the contract so the bug does not quietly return later after some unrelated refactor.\n",
+  "wordCount" : "464",
+  "inLanguage": "en",
+  "datePublished": "2026-05-17T01:00:00+05:30",
+  "dateModified": "2026-05-17T01:00:00+05:30",
+  "author":{
+    "@type": "Person",
+    "name": "Swarnim Tripathi"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "http://localhost:1313/posts/pytorch-aten-dispatch/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Swarnim Tripathi",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "http://localhost:1313/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="Swarnim Tripathi (Alt + H)">Swarnim Tripathi</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li>
+                <a href="http://localhost:1313/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/archives/" title="Archive">
+                    <span>Archive</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="/">Home</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="/posts/">Posts</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Deconstructing my PyTorch ATen PR: What happens when you index a Tensor?
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-05-17 01:00:00 +0530 IST'>May 17, 2026</span>&nbsp;·&nbsp;<span>3 min</span>&nbsp;·&nbsp;<span>Swarnim Tripathi</span>
+
+</div>
+  </header> <details class="toc" >
+    <summary accesskey="c" title="(Alt + C)">
+        <span class="title">Table of Contents</span>
+    </summary>
+
+    <div class="inner"><ul>
+            <li>
+                <a href="#the-bug-empty-indices-crashing-indextensor" aria-label="The Bug: Empty Indices Crashing index.Tensor">The Bug: Empty Indices Crashing index.Tensor</a></li>
+            <li>
+                <a href="#tracing-the-dispatch-python-to-aten" aria-label="Tracing the Dispatch: Python to ATen">Tracing the Dispatch: Python to ATen</a></li>
+            <li>
+                <a href="#the-solution-fixing-indexingutilsh-and-tensoradvancedindexingcpp" aria-label="The Solution: Fixing IndexingUtils.h and TensorAdvancedIndexing.cpp">The Solution: Fixing IndexingUtils.h and TensorAdvancedIndexing.cpp</a>
+            </li>
+        </ul>
+    </div>
+</details>
+
+  <div class="post-content md-content"><p>Whenever we write <code>tensor[0]</code> in Python, it feels like magic. But under the hood, PyTorch has to route this operation through a massive C++ dispatching engine to figure out if this should run on a CPU or a CUDA GPU&hellip;</p>
+<h2 id="the-bug-empty-indices-crashing-indextensor">The Bug: Empty Indices Crashing <code>index.Tensor</code><a hidden class="anchor" aria-hidden="true" href="#the-bug-empty-indices-crashing-indextensor">#</a></h2>
+<p>The issue behind this PR was deceptively small: <code>torch.ops.aten.index.Tensor(t, [])</code> could crash instead of failing cleanly when the index list was empty. In other words, PyTorch was being asked to perform tensor indexing with no actual indices, and one of the internal code paths did not defend itself against that case.</p>
+<p>That sounds like a corner case, but it is exactly the kind of corner case that matters in a system like PyTorch. Indexing is one of the most heavily used operations in the entire stack, and even a tiny inconsistency can surface in surprising places, especially once you start mixing Python frontend code, ATen internals, and backend-specific behavior.</p>
+<h2 id="tracing-the-dispatch-python-to-aten"><code>Tracing the Dispatch: Python to ATen</code><a hidden class="anchor" aria-hidden="true" href="#tracing-the-dispatch-python-to-aten">#</a></h2>
+<p>When you write something like <code>x[0]</code> in Python, the operation does not stay in Python for long. It is lowered into ATen, PyTorch’s internal tensor library, where the framework decides how to interpret the indexing request and which backend should handle it.</p>
+<p>That path has to answer a lot of questions:</p>
+<ul>
+<li>Is the index list valid?</li>
+<li>Are we doing basic or advanced indexing?</li>
+<li>Do the indices describe a contiguous subspace?</li>
+<li>Should the implementation materialize any optional indices first?</li>
+</ul>
+<p>The bug in this PR lived in that validation layer. The problem was not really about a specific device or dtype. It was about what happens when the list of indices is empty and the internal helpers assume there is at least one meaningful tensor to inspect.</p>
+<h2 id="the-solution-fixing-indexingutilsh-and-tensoradvancedindexingcpp"><code>The Solution: Fixing IndexingUtils.h and TensorAdvancedIndexing.cpp</code><a hidden class="anchor" aria-hidden="true" href="#the-solution-fixing-indexingutilsh-and-tensoradvancedindexingcpp">#</a></h2>
+<p>The PR made two functional changes in the C++ code and one regression test in Python.</p>
+<p>First, <code>IndexingUtils.h</code> was updated so that the helper that checks whether the indexed tensors form a contiguous subspace handles an empty set safely. That is the kind of guard that looks boring in isolation, but it is exactly what keeps an internal helper from wandering into undefined behavior when the input is degenerate.</p>
+<p>Second, <code>TensorAdvancedIndexing.cpp</code> now checks the meta path for an empty index list and raises a clear <code>IndexError</code> with the message <code>at least one index must be provided</code>. That is the right failure mode here: fail early, fail explicitly, and fail in a place that tells the caller what is wrong.</p>
+<p>Third, the Python test suite gained a regression test that exercises the exact empty-index call:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">with</span> self<span style="color:#f92672">.</span>assertRaisesRegex(<span style="color:#a6e22e">IndexError</span>, <span style="color:#e6db74">&#34;at least one index must be provided&#34;</span>):
+</span></span><span style="display:flex;"><span>	torch<span style="color:#f92672">.</span>ops<span style="color:#f92672">.</span>aten<span style="color:#f92672">.</span>index<span style="color:#f92672">.</span>Tensor(t, [])
+</span></span></code></pre></div><p>That test is doing more than checking an error message. It locks in the contract so the bug does not quietly return later after some unrelated refactor.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="http://localhost:1313/tags/pytorch/">PyTorch</a></li>
+      <li><a href="http://localhost:1313/tags/c&#43;&#43;/">C&#43;&#43;</a></li>
+      <li><a href="http://localhost:1313/tags/ml-systems/">ML Systems</a></li>
+    </ul>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="http://localhost:1313/">Swarnim Tripathi</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
