@@ -2,20 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Posts on Swarnim Tripathi</title>
-    <link>http://localhost:1313/posts/</link>
+    <link>http://localhost:1314/posts/</link>
     <description>Recent content in Posts on Swarnim Tripathi</description>
     <generator>Hugo</generator>
     <language>en</language>
+    <copyright>2026 Swarnim Tripathi</copyright>
     <lastBuildDate>Sun, 17 May 2026 01:00:00 +0530</lastBuildDate>
-    <atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://localhost:1314/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Deconstructing my PyTorch ATen PR: What happens when you index a Tensor?</title>
-      <link>http://localhost:1313/posts/pytorch-aten-dispatch/</link>
+      <link>http://localhost:1314/posts/pytorch-aten-dispatch/</link>
       <pubDate>Sun, 17 May 2026 01:00:00 +0530</pubDate>
-      <guid>http://localhost:1313/posts/pytorch-aten-dispatch/</guid>
-      <description>&lt;p&gt;Whenever we write &lt;code&gt;tensor[0]&lt;/code&gt; in Python, it feels like magic. But under the hood, PyTorch has to route this operation through a massive C++ dispatching engine to figure out if this should run on a CPU or a CUDA GPU&amp;hellip;&lt;/p&gt;
-&lt;h2 id=&#34;the-bug-empty-indices-crashing-indextensor&#34;&gt;The Bug: Empty Indices Crashing &lt;code&gt;index.Tensor&lt;/code&gt;&lt;/h2&gt;
-&lt;p&gt;The issue behind this PR was deceptively small: &lt;code&gt;torch.ops.aten.index.Tensor(t, [])&lt;/code&gt; could crash instead of failing cleanly when the index list was empty. In other words, PyTorch was being asked to perform tensor indexing with no actual indices, and one of the internal code paths did not defend itself against that case.&lt;/p&gt;</description>
+      <guid>http://localhost:1314/posts/pytorch-aten-dispatch/</guid>
+      <description>My PyTorch PR that fixed empty-index crashes in ATen&amp;#39;s tensor indexing... tracing the dispatch path from Python to C&#43;&#43; and the validation fix in IndexingUtils.h.</description>
     </item>
   </channel>
 </rss>

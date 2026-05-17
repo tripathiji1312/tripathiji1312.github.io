@@ -2,13 +2,17 @@
 title: "Deconstructing my PyTorch ATen PR: What happens when you index a Tensor?"
 date: 2026-05-17T01:00:00+05:30
 draft: false
-tags: ["PyTorch", "C++", "ML Systems"]
-showToc: true        # This creates a beautiful Table of Contents!
-TocOpen: false       # Keeps the ToC collapsed by default
-math: true           # Enables math rendering
+tags: ["PyTorch", "C++", "ML Systems", "Open Source", "ATen"]
+keywords: ["PyTorch ATen dispatch", "tensor indexing internals", "PyTorch C++ contribution", "IndexingUtils.h", "TensorAdvancedIndexing", "PyTorch open source PR"]
+description: "My PyTorch PR that fixed empty-index crashes in ATen's tensor indexing... tracing the dispatch path from Python to C++ and the validation fix in IndexingUtils.h."
+summary: "How I fixed a crash in PyTorch's ATen C++ layer when tensor indexing receives an empty index list — tracing the dispatch from Python through to IndexingUtils.h and TensorAdvancedIndexing.cpp."
+author: "Swarnim Tripathi"
+showToc: true
+TocOpen: false
+math: true
 ---
 
-
+Referencing PR --> [PR #174009](https://github.com/pytorch/pytorch/pull/174009), altough there were few changes, made afterwards by the reviewers. 
 Whenever we write `tensor[0]` in Python, it feels like magic. But under the hood, PyTorch has to route this operation through a massive C++ dispatching engine to figure out if this should run on a CPU or a CUDA GPU...
 
 ## The Bug: Empty Indices Crashing `index.Tensor`
@@ -17,7 +21,7 @@ The issue behind this PR was deceptively small: `torch.ops.aten.index.Tensor(t, 
 
 That sounds like a corner case, but it is exactly the kind of corner case that matters in a system like PyTorch. Indexing is one of the most heavily used operations in the entire stack, and even a tiny inconsistency can surface in surprising places, especially once you start mixing Python frontend code, ATen internals, and backend-specific behavior.
 
-## `Tracing the Dispatch: Python to ATen`
+## Tracing the Dispatch: Python to ATen
 
 When you write something like `x[0]` in Python, the operation does not stay in Python for long. It is lowered into ATen, PyTorch’s internal tensor library, where the framework decides how to interpret the indexing request and which backend should handle it.
 
@@ -30,7 +34,7 @@ That path has to answer a lot of questions:
 
 The bug in this PR lived in that validation layer. The problem was not really about a specific device or dtype. It was about what happens when the list of indices is empty and the internal helpers assume there is at least one meaningful tensor to inspect.
 
-## `The Solution: Fixing IndexingUtils.h and TensorAdvancedIndexing.cpp`
+## The Solution: Fixing `IndexingUtils.h` and `TensorAdvancedIndexing.cpp`
 
 The PR made two functional changes in the C++ code and one regression test in Python.
 

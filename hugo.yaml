@@ -1,6 +1,11 @@
-baseURL: "https://swarnimtripathi.github.io/"
+baseURL: "https://tripathiji1312.github.io/"
 title: "Swarnim Tripathi"
 theme: "PaperMod"
+defaultContentLanguage: "en"
+copyright: "© 2026 Swarnim Tripathi"
+
+# Enables sitemap.xml generation (critical for Google indexing)
+enableRobotsTXT: true
 
 # This is required to make the Search functionality work
 outputs:
@@ -9,33 +14,41 @@ outputs:
     - RSS
     - JSON 
 
+# SEO: Keywords for the entire site
 params:
   env: "production"
-  description: "Machine Learning Engineer | ML Systems & AI Research"
+  description: "Swarnim Tripathi — Machine Learning Engineer specializing in ML Systems, Inference Optimization, and PyTorch internals. Open-source contributor to PyTorch. Undergrad at VIT Chennai."
   author: "Swarnim Tripathi"
-  
-  # UI & Aesthetics
-  defaultTheme: "dark"           # Dark mode looks much better for tech blogs
-  disableThemeToggle: false      # Allows users to switch to light mode if they want
-  ShowReadingTime: true          # Shows "5 min read"
-  ShowCodeCopyButtons: true      # Adds a copy button to your C++/Python code blocks!
-  ShowBreadCrumbs: true          # Shows Home > Posts > Title at the top
-  ShowPostNavLinks: true         # Suggests next/previous posts at the bottom
-  disableScrollToTop: false      # Adds a neat arrow to scroll back up
+  keywords:
+    - "Swarnim Tripathi"
+    - "Machine Learning Engineer"
+    - "ML Systems"
+    - "PyTorch"
+    - "Inference Optimization"
+    - "Deep Learning"
+    - "VIT Chennai"
+    - "Open Source"
+    - "AI Research"
 
-  # The Landing Page (Profile Mode)
-  profileMode:
-    enabled: true
-    title: "Swarnim Tripathi"
-    subtitle: "Machine Learning Engineer - ML Systems • Inference Optimization • PyTorch \nUndergrad @ VIT Chennai."
-    imageUrl: "https://github.com/tripathiji1312.png" # Automatically fetches your GitHub picture!
-    imageWidth: 150
-    imageHeight: 150
-    buttons:
-      - name: "Read my Research & Posts"
-        url: "/posts/"
-      - name: "Search"
-        url: "/search/"
+  # Schema.org: tells Google this is a Person, not a company
+  schema:
+    publisherType: "Person"
+
+  # UI & Aesthetics
+  defaultTheme: "dark"
+  disableThemeToggle: false
+  ShowReadingTime: true
+  ShowCodeCopyButtons: true
+  ShowBreadCrumbs: true
+  ShowPostNavLinks: true
+  disableScrollToTop: false
+  ShowShareButtons: true        # Adds share buttons for social reach
+
+  # Home Info Mode - shows intro at top, then posts below
+  homeInfoParams:
+    Title: "👋 Hey, I'm Swarnim!"
+    Content: >
+      Machine Learning Engineer obsessed with **ML Systems**, **Inference Optimization**, and **PyTorch internals**. Here I am documenting everything I make or work on.. soo yeah.
 
   # Your Social Links
   socialIcons:
@@ -43,8 +56,27 @@ params:
       url: "https://github.com/tripathiji1312"
     - name: "linkedin"
       url: "https://linkedin.com/in/swarnim-trip"
+    - name: "link"
+      url: "https://tripathiji.vercel.app/"
     - name: "email"
       url: "mailto:swarnim.tr@gmail.com"
+
+  # Ensure homepage shows posts from `posts` section
+  mainSections:
+    - "posts"
+
+  # Favicons and related assets (local files in /static/)
+  assets:
+    favicon: "/favicon.ico"
+    favicon16x16: "/favicon-16x16.png"
+    favicon32x32: "/favicon-32x32.png"
+    apple_touch_icon: "/apple-touch-icon.png"
+    theme_color: "#1a1a2e"
+
+# Sitemap configuration
+sitemap:
+  changeFreq: "weekly"
+  priority: 0.5
 
 # The Top Navigation Menu
 menu:
@@ -65,3 +97,9 @@ menu:
       name: "Tags"
       url: "/tags/"
       weight: 40
+
+# Markup configuration for proper heading IDs (SEO anchor links)
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
