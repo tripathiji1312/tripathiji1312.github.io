@@ -7,6 +7,10 @@ copyright: "© 2026 Swarnim Tripathi"
 # Enables sitemap.xml generation (critical for Google indexing)
 enableRobotsTXT: true
 
+services:
+  googleAnalytics:
+    id: "G-6LD479KS5L"
+
 # This is required to make the Search functionality work
 outputs:
   home:
