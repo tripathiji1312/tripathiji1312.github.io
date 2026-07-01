@@ -10,10 +10,24 @@
     <lastBuildDate>Wed, 01 Jul 2026 23:05:53 +0530</lastBuildDate>
     <atom:link href="http://localhost:1313/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Audio</title>
-      <link>http://localhost:1313/tags/audio/</link>
+      <title>BC-ResNet</title>
+      <link>http://localhost:1313/tags/bc-resnet/</link>
       <pubDate>Wed, 01 Jul 2026 23:05:53 +0530</pubDate>
-      <guid>http://localhost:1313/tags/audio/</guid>
+      <guid>http://localhost:1313/tags/bc-resnet/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>CLUB</title>
+      <link>http://localhost:1313/tags/club/</link>
+      <pubDate>Wed, 01 Jul 2026 23:05:53 +0530</pubDate>
+      <guid>http://localhost:1313/tags/club/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Conformer</title>
+      <link>http://localhost:1313/tags/conformer/</link>
+      <pubDate>Wed, 01 Jul 2026 23:05:53 +0530</pubDate>
+      <guid>http://localhost:1313/tags/conformer/</guid>
       <description></description>
     </item>
     <item>
@@ -24,31 +38,87 @@
       <description></description>
     </item>
     <item>
-      <title>Disentanglement</title>
-      <link>http://localhost:1313/tags/disentanglement/</link>
+      <title>ECAPA-TDNN</title>
+      <link>http://localhost:1313/tags/ecapa-tdnn/</link>
       <pubDate>Wed, 01 Jul 2026 23:05:53 +0530</pubDate>
-      <guid>http://localhost:1313/tags/disentanglement/</guid>
+      <guid>http://localhost:1313/tags/ecapa-tdnn/</guid>
       <description></description>
     </item>
     <item>
-      <title>KWS</title>
-      <link>http://localhost:1313/tags/kws/</link>
+      <title>Edge AI</title>
+      <link>http://localhost:1313/tags/edge-ai/</link>
       <pubDate>Wed, 01 Jul 2026 23:05:53 +0530</pubDate>
-      <guid>http://localhost:1313/tags/kws/</guid>
+      <guid>http://localhost:1313/tags/edge-ai/</guid>
       <description></description>
     </item>
     <item>
-      <title>ML</title>
-      <link>http://localhost:1313/tags/ml/</link>
+      <title>Few-Shot Learning</title>
+      <link>http://localhost:1313/tags/few-shot-learning/</link>
       <pubDate>Wed, 01 Jul 2026 23:05:53 +0530</pubDate>
-      <guid>http://localhost:1313/tags/ml/</guid>
+      <guid>http://localhost:1313/tags/few-shot-learning/</guid>
       <description></description>
     </item>
     <item>
-      <title>Speech</title>
-      <link>http://localhost:1313/tags/speech/</link>
+      <title>GRL</title>
+      <link>http://localhost:1313/tags/grl/</link>
       <pubDate>Wed, 01 Jul 2026 23:05:53 +0530</pubDate>
-      <guid>http://localhost:1313/tags/speech/</guid>
+      <guid>http://localhost:1313/tags/grl/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Keyword Spotting</title>
+      <link>http://localhost:1313/tags/keyword-spotting/</link>
+      <pubDate>Wed, 01 Jul 2026 23:05:53 +0530</pubDate>
+      <guid>http://localhost:1313/tags/keyword-spotting/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>On-Device ML</title>
+      <link>http://localhost:1313/tags/on-device-ml/</link>
+      <pubDate>Wed, 01 Jul 2026 23:05:53 +0530</pubDate>
+      <guid>http://localhost:1313/tags/on-device-ml/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Speaker Verification</title>
+      <link>http://localhost:1313/tags/speaker-verification/</link>
+      <pubDate>Wed, 01 Jul 2026 23:05:53 +0530</pubDate>
+      <guid>http://localhost:1313/tags/speaker-verification/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Speech Disentanglement</title>
+      <link>http://localhost:1313/tags/speech-disentanglement/</link>
+      <pubDate>Wed, 01 Jul 2026 23:05:53 +0530</pubDate>
+      <guid>http://localhost:1313/tags/speech-disentanglement/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Speech Recognition</title>
+      <link>http://localhost:1313/tags/speech-recognition/</link>
+      <pubDate>Wed, 01 Jul 2026 23:05:53 +0530</pubDate>
+      <guid>http://localhost:1313/tags/speech-recognition/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>TinyML</title>
+      <link>http://localhost:1313/tags/tinyml/</link>
+      <pubDate>Wed, 01 Jul 2026 23:05:53 +0530</pubDate>
+      <guid>http://localhost:1313/tags/tinyml/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Voice Biometrics</title>
+      <link>http://localhost:1313/tags/voice-biometrics/</link>
+      <pubDate>Wed, 01 Jul 2026 23:05:53 +0530</pubDate>
+      <guid>http://localhost:1313/tags/voice-biometrics/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Wake Word Detection</title>
+      <link>http://localhost:1313/tags/wake-word-detection/</link>
+      <pubDate>Wed, 01 Jul 2026 23:05:53 +0530</pubDate>
+      <guid>http://localhost:1313/tags/wake-word-detection/</guid>
       <description></description>
     </item>
     <item>
@@ -84,6 +154,41 @@
       <link>http://localhost:1313/tags/pytorch/</link>
       <pubDate>Sun, 17 May 2026 01:00:00 +0530</pubDate>
       <guid>http://localhost:1313/tags/pytorch/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Audio</title>
+      <link>http://localhost:1313/tags/audio/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/tags/audio/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Disentanglement</title>
+      <link>http://localhost:1313/tags/disentanglement/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/tags/disentanglement/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>KWS</title>
+      <link>http://localhost:1313/tags/kws/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/tags/kws/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>ML</title>
+      <link>http://localhost:1313/tags/ml/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/tags/ml/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Speech</title>
+      <link>http://localhost:1313/tags/speech/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/tags/speech/</guid>
       <description></description>
     </item>
   </channel>
