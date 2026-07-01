@@ -294,7 +294,7 @@ This work sits at the intersection of disentangled representation learning (GRL 
 
 Please cite this work as:
 
-Banerjee, Sohini and Tripathi, Swarnim. "Identity Is Not the Keyword". *Swarnim Tripathi's Blog* (Jul 2026). https://tripathiji1312.github.io/posts/disent-kws/
+Banerjee, Sohini and Tripathi, Swarnim. "Identity Is Not the Keyword". *Swarnim Tripathi's Blog* (Jul 2026). https://blog.swarnim.site/posts/disent-kws/
 
 Or use the BibTeX citation:
 
@@ -304,7 +304,7 @@ Or use the BibTeX citation:
   author={Banerjee, Sohini and Tripathi, Swarnim},
   year={2026},
   month={July},
-  url={https://tripathiji1312.github.io/posts/disent-kws/},
+  url={https://blog.swarnim.site/posts/disent-kws/},
   howpublished={\url{https://github.com/tripathiji1312/DISENT_KWS}},
   note={BC-ResNet-2 backbone with Causal Conformer phonetic head,
         ECAPA-TDNN Lite speaker head, and GRL+CLUB disentanglement.

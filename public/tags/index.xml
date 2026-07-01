@@ -156,40 +156,5 @@
       <guid>http://localhost:1313/tags/pytorch/</guid>
       <description></description>
     </item>
-    <item>
-      <title>Audio</title>
-      <link>http://localhost:1313/tags/audio/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/audio/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Disentanglement</title>
-      <link>http://localhost:1313/tags/disentanglement/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/disentanglement/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>KWS</title>
-      <link>http://localhost:1313/tags/kws/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/kws/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>ML</title>
-      <link>http://localhost:1313/tags/ml/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/ml/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Speech</title>
-      <link>http://localhost:1313/tags/speech/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/speech/</guid>
-      <description></description>
-    </item>
   </channel>
 </rss>

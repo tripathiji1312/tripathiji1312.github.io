@@ -2,7 +2,17 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://localhost:1313/tags/audio/</loc>
+    <loc>http://localhost:1313/tags/bc-resnet/</loc>
+    <lastmod>2026-07-01T23:05:53+05:30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>http://localhost:1313/tags/club/</loc>
+    <lastmod>2026-07-01T23:05:53+05:30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>http://localhost:1313/tags/conformer/</loc>
     <lastmod>2026-07-01T23:05:53+05:30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
@@ -12,22 +22,37 @@
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url><url>
+    <loc>http://localhost:1313/tags/ecapa-tdnn/</loc>
+    <lastmod>2026-07-01T23:05:53+05:30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>http://localhost:1313/tags/edge-ai/</loc>
+    <lastmod>2026-07-01T23:05:53+05:30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>http://localhost:1313/tags/few-shot-learning/</loc>
+    <lastmod>2026-07-01T23:05:53+05:30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>http://localhost:1313/tags/grl/</loc>
+    <lastmod>2026-07-01T23:05:53+05:30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
     <loc>http://localhost:1313/posts/disent-kws/</loc>
     <lastmod>2026-07-01T23:05:53+05:30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url><url>
-    <loc>http://localhost:1313/tags/disentanglement/</loc>
+    <loc>http://localhost:1313/tags/keyword-spotting/</loc>
     <lastmod>2026-07-01T23:05:53+05:30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url><url>
-    <loc>http://localhost:1313/tags/kws/</loc>
-    <lastmod>2026-07-01T23:05:53+05:30</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url><url>
-    <loc>http://localhost:1313/tags/ml/</loc>
+    <loc>http://localhost:1313/tags/on-device-ml/</loc>
     <lastmod>2026-07-01T23:05:53+05:30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
@@ -37,7 +62,17 @@
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url><url>
-    <loc>http://localhost:1313/tags/speech/</loc>
+    <loc>http://localhost:1313/tags/speaker-verification/</loc>
+    <lastmod>2026-07-01T23:05:53+05:30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>http://localhost:1313/tags/speech-disentanglement/</loc>
+    <lastmod>2026-07-01T23:05:53+05:30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>http://localhost:1313/tags/speech-recognition/</loc>
     <lastmod>2026-07-01T23:05:53+05:30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
@@ -48,6 +83,21 @@
     <priority>0.5</priority>
   </url><url>
     <loc>http://localhost:1313/tags/</loc>
+    <lastmod>2026-07-01T23:05:53+05:30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>http://localhost:1313/tags/tinyml/</loc>
+    <lastmod>2026-07-01T23:05:53+05:30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>http://localhost:1313/tags/voice-biometrics/</loc>
+    <lastmod>2026-07-01T23:05:53+05:30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>http://localhost:1313/tags/wake-word-detection/</loc>
     <lastmod>2026-07-01T23:05:53+05:30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
