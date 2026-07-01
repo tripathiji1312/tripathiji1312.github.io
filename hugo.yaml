@@ -9,7 +9,7 @@ enableRobotsTXT: true
 
 services:
   googleAnalytics:
-    id: "G-6LD479KS5L"
+    id: "G-HFW07PKECH"
 
 # This is required to make the Search functionality work
 outputs:
