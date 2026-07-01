@@ -2,26 +2,295 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Swarnim Tripathi</title>
-    <link>http://localhost:1314/</link>
+    <link>http://localhost:1313/</link>
     <description>Recent content on Swarnim Tripathi</description>
     <generator>Hugo</generator>
     <language>en</language>
     <copyright>2026 Swarnim Tripathi</copyright>
-    <lastBuildDate>Sun, 17 May 2026 23:55:54 +0530</lastBuildDate>
-    <atom:link href="http://localhost:1314/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 01 Jul 2026 23:05:53 +0530</lastBuildDate>
+    <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Identity Is Not the Keyword</title>
+      <link>http://localhost:1313/posts/disent-kws/</link>
+      <pubDate>Wed, 01 Jul 2026 23:05:53 +0530</pubDate>
+      <guid>http://localhost:1313/posts/disent-kws/</guid>
+      <description>A deep dive into DISENT-KWS: a 1.8M parameter model that disentangles phonetic content from speaker identity for robust custom keyword spotting on edge devices. Combines adversarial training, mutual information minimization, and dual-head scoring for speaker-aware wake word detection.</description>
+    </item>
     <item>
       <title>Building of pytorch internals</title>
-      <link>http://localhost:1314/posts/strides-pytorch/</link>
+      <link>http://localhost:1313/posts/strides-pytorch/</link>
       <pubDate>Sun, 17 May 2026 23:55:54 +0530</pubDate>
-      <guid>http://localhost:1314/posts/strides-pytorch/</guid>
+      <guid>http://localhost:1313/posts/strides-pytorch/</guid>
       <description>&lt;p&gt;So if we take the picture of a &lt;code&gt;tensor&lt;/code&gt; in our mind, we can think of it as infinetely length cube representation of number.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Deconstructing my PyTorch ATen PR: What happens when you index a Tensor?</title>
-      <link>http://localhost:1314/posts/pytorch-aten-dispatch/</link>
+      <link>http://localhost:1313/posts/pytorch-aten-dispatch/</link>
       <pubDate>Sun, 17 May 2026 01:00:00 +0530</pubDate>
-      <guid>http://localhost:1314/posts/pytorch-aten-dispatch/</guid>
+      <guid>http://localhost:1313/posts/pytorch-aten-dispatch/</guid>
       <description>My PyTorch PR that fixed empty-index crashes in ATen&amp;#39;s tensor indexing... tracing the dispatch path from Python to C&#43;&#43; and the validation fix in IndexingUtils.h.</description>
+    </item>
+    <item>
+      <title></title>
+      <link>http://localhost:1313/ref/model_card/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/ref/model_card/</guid>
+      <description>&lt;h1 id=&#34;model-card-disent-kws&#34;&gt;Model Card: DISENT-KWS&lt;/h1&gt;
+&lt;h2 id=&#34;model-description&#34;&gt;Model Description&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;DISENT-KWS&lt;/strong&gt; is a speech disentanglement model for robust custom word detection. It uses a shared BC-ResNet-2 encoder with dual heads — a Causal Conformer (phonetic) and ECAPA-TDNN Lite (speaker) — to produce orthogonal latent embeddings. A Dual-Gate Scorer combines keyword and speaker similarity with calibrated weights for joint verification.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Total Parameters:&lt;/strong&gt; 1.806M&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;ONNX Size:&lt;/strong&gt; 0.60 MB (INT8 quantized)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Input:&lt;/strong&gt; 80-band log Mel filterbank energies, 200 frames (2 s @ 16 kHz)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Output:&lt;/strong&gt; &lt;code&gt;z_phn ∈ ℝ¹⁹²&lt;/code&gt; (phonetic embedding), &lt;code&gt;z_spk ∈ ℝ¹⁹²&lt;/code&gt; (speaker embedding)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;intended-use&#34;&gt;Intended Use&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Custom keyword spotting&lt;/strong&gt; with speaker verification for access control, voice assistants, or wake-word systems&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Real-time streaming&lt;/strong&gt; inference on CPU (26.4 ms per 2 s window)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Few-shot enrollment&lt;/strong&gt; (5+ utterances) for new users and custom words&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;architecture&#34;&gt;Architecture&lt;/h2&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;Component&lt;/th&gt;
+          &lt;th&gt;Type&lt;/th&gt;
+          &lt;th&gt;Params&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Shared Encoder&lt;/td&gt;
+          &lt;td&gt;BC-ResNet-2&lt;/td&gt;
+          &lt;td&gt;33.8K&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Temporal Block&lt;/td&gt;
+          &lt;td&gt;Mamba SSM / Dilated Conv1D&lt;/td&gt;
+          &lt;td&gt;10.3K&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Phonetic Head&lt;/td&gt;
+          &lt;td&gt;Causal Conformer (4 heads, kernel 15)&lt;/td&gt;
+          &lt;td&gt;1,673K&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Speaker Head&lt;/td&gt;
+          &lt;td&gt;ECAPA-TDNN Lite (SE ratio 4, scale 4)&lt;/td&gt;
+          &lt;td&gt;88.8K&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Scorer&lt;/td&gt;
+          &lt;td&gt;Dual-Gate (w_kw=0.30, w_spk=0.65, EMA α=0.7)&lt;/td&gt;
+          &lt;td&gt;—&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;training-data&#34;&gt;Training Data&lt;/h2&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;Dataset&lt;/th&gt;
+          &lt;th&gt;Usage&lt;/th&gt;
+          &lt;th&gt;Samples&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Google Speech Commands v2&lt;/td&gt;
+          &lt;td&gt;Keyword pre-training (35 classes)&lt;/td&gt;
+          &lt;td&gt;105K&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;VoxCeleb1&lt;/td&gt;
+          &lt;td&gt;Speaker verification (1,251 speakers)&lt;/td&gt;
+          &lt;td&gt;153K&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;LibriPhrase&lt;/td&gt;
+          &lt;td&gt;Hard-negative triplet pairs&lt;/td&gt;
+          &lt;td&gt;3K triplets&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;MUSAN&lt;/td&gt;
+          &lt;td&gt;Noise augmentation (babble, music, environmental)&lt;/td&gt;
+          &lt;td&gt;109 hrs&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;training-phases&#34;&gt;Training Phases&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Phase 1:&lt;/strong&gt; AAM-Softmax pre-training on keyword (GSC) and speaker (VoxCeleb) separately&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Phase 2:&lt;/strong&gt; Joint training with GRL adversarial reversal + CLUB MI minimization + triplet rejection loss&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Phase 3a:&lt;/strong&gt; GE2E speaker head refinement&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Phase 3b:&lt;/strong&gt; Hard-negative GE2E with LibriPhrase confusers&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;performance&#34;&gt;Performance&lt;/h2&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;Metric&lt;/th&gt;
+          &lt;th&gt;Value&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Keyword EER&lt;/td&gt;
+          &lt;td&gt;4.69%&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Speaker EER&lt;/td&gt;
+          &lt;td&gt;17.86%&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Joint EER&lt;/td&gt;
+          &lt;td&gt;23.47%&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Joint AUC&lt;/td&gt;
+          &lt;td&gt;0.8425&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;CPU Latency&lt;/td&gt;
+          &lt;td&gt;26.43 ms (p95: 28.29 ms)&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Real-Time Factor (xRT)&lt;/td&gt;
+          &lt;td&gt;0.0132&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Optimal Threshold (τ)&lt;/td&gt;
+          &lt;td&gt;0.2222&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;hardware--runtime&#34;&gt;Hardware &amp;amp; Runtime&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Training:&lt;/strong&gt; NVIDIA GPU with 16 GB+ VRAM (tested on Tesla T4)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Inference:&lt;/strong&gt; CPU-only via ONNX Runtime; no GPU required&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Memory:&lt;/strong&gt; ~200 MB RAM at runtime&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;known-limitations&#34;&gt;Known Limitations&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Requires clean enrollment recordings (SNR ≥ 10 dB recommended)&lt;/li&gt;
+&lt;li&gt;Speaker EER (17.86%) is higher than keyword EER — joint verification mitigates this&lt;/li&gt;
+&lt;li&gt;Mamba SSM fallback to Dilated Conv1D on platforms without CUDA (no performance loss)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;license&#34;&gt;License&lt;/h2&gt;
+&lt;p&gt;MIT&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title></title>
+      <link>http://localhost:1313/ref/readme/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/ref/readme/</guid>
+      <description>&lt;h1 id=&#34;disent-kws--speech-disentanglement-for-robust-custom-word-detection&#34;&gt;DISENT-KWS — Speech Disentanglement for Robust Custom Word Detection&lt;/h1&gt;
+&lt;p align=&#34;center&#34;&gt;
+  &lt;img src=&#34;docs/training_phases.png&#34; alt=&#34;DISENT-KWS Training Pipeline&#34; width=&#34;800&#34;/&gt;
+&lt;/p&gt;
+&lt;p align=&#34;center&#34;&gt;
+  &lt;img src=&#34;https://img.shields.io/badge/Parameters-1.806M-green&#34; alt=&#34;1.806M params&#34;/&gt;
+  &lt;img src=&#34;https://img.shields.io/badge/Keyword%20EER-4.69%25-green&#34; alt=&#34;4.69% Keyword EER&#34;/&gt;
+  &lt;img src=&#34;https://img.shields.io/badge/Joint%20AUC-0.8425-green&#34; alt=&#34;0.8425 AUC&#34;/&gt;
+  &lt;img src=&#34;https://img.shields.io/badge/Model%20Size-0.60%20MB-blue&#34; alt=&#34;0.60 MB ONNX&#34;/&gt;
+  &lt;img src=&#34;https://img.shields.io/badge/xRT-0.0132-blue&#34; alt=&#34;0.0132 real-time factor&#34;/&gt;
+  &lt;img src=&#34;https://img.shields.io/badge/License-MIT-yellow&#34; alt=&#34;MIT License&#34;/&gt;
+&lt;/p&gt;
+&lt;hr&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Demo Video Link&lt;/strong&gt; — &lt;a href=&#34;https://youtu.be/dKjWTKI60Rw&#34;&gt;YouTube Demo Video&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Setup &amp;amp; Result Reproducibility Video Link&lt;/strong&gt; — &lt;a href=&#34;https://youtu.be/eU0mwZUcVaE&#34;&gt;YouTube Setup Video&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;quick-start&#34;&gt;Quick Start&lt;/h2&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Install dependencies&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;uv sync --all-extras
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Run tests (verify 60+ tests pass)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;make test
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Option A: Live record 5 utterances from mic, then enroll&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;python src/demo.py record --model model_final.pt --out enrollment.pt
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Option B: Provide pre-recorded WAV files&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;python src/demo.py enroll &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    --recordings ./my_recordings/*.wav &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    --model model_final.pt &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    --out enrollment.pt
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Real-time detection&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;python src/demo.py detect --enrollment enrollment.pt --auto-threshold --vad-threshold 0.02
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;hr&gt;
+&lt;h2 id=&#34;project-artifacts&#34;&gt;Project Artifacts&lt;/h2&gt;
+&lt;h3 id=&#34;technical-documentation&#34;&gt;Technical Documentation&lt;/h3&gt;
+&lt;p&gt;All technical documentation is organized in the &lt;a href=&#34;docs/&#34;&gt;&lt;code&gt;docs/&lt;/code&gt;&lt;/a&gt; directory:&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title></title>
+      <link>http://localhost:1313/ref/solution_architecture/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/ref/solution_architecture/</guid>
+      <description>&lt;h1 id=&#34;speech-disentanglement-for-robust-custom-word-detection-solution-architecture-and-theoretical-foundations&#34;&gt;Speech Disentanglement for Robust Custom Word Detection: Solution Architecture and Theoretical Foundations&lt;/h1&gt;
+&lt;p&gt;This document serves as a comprehensive technical treatise on the mathematical, architectural, and optimization foundations of the &lt;strong&gt;DISENT-KWS&lt;/strong&gt; system.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;1-problem-formulation-and-theoretical-constraints&#34;&gt;1. Problem Formulation and Theoretical Constraints&lt;/h2&gt;
+&lt;p&gt;Let $x(t)$ be a monaural, continuous-time acoustic signal recorded in a noisy reverberant environment. The signal is modeled as:&lt;/p&gt;
+$$x(t) = \left( s_T(t) * h_T(t) \right) + \sum_{i=1}^{I} \left( s_i(t) * h_i(t) \right) + n(t)$$&lt;p&gt;Where:&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title></title>
+      <link>http://localhost:1313/ref/testing/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/ref/testing/</guid>
+      <description>&lt;h1 id=&#34;testing-guide-for-disent-kws&#34;&gt;Testing Guide for DISENT-KWS&lt;/h1&gt;
+&lt;h2 id=&#34;overview&#34;&gt;Overview&lt;/h2&gt;
+&lt;p&gt;This project uses &lt;strong&gt;pytest&lt;/strong&gt; for unit testing, &lt;strong&gt;GitHub Actions&lt;/strong&gt; for CI-CD, and &lt;strong&gt;pre-commit hooks&lt;/strong&gt; for local code quality enforcement.&lt;/p&gt;
+&lt;p&gt;All dependencies are managed via &lt;strong&gt;&lt;code&gt;uv&lt;/code&gt;&lt;/strong&gt; (fast Python package installer). Make sure &lt;code&gt;uv&lt;/code&gt; is installed before running tests.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;quick-start&#34;&gt;Quick Start&lt;/h2&gt;
+&lt;h3 id=&#34;run-all-tests-locally&#34;&gt;Run All Tests Locally&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Option 1: Using make&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;make test
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Option 2: Using uv directly&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;uv run pytest tests/ -v
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Option 3: Using the Python runner&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;python scripts/test.py
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;run-tests-with-coverage&#34;&gt;Run Tests with Coverage&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Using make&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;make test-cov
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Using uv directly&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;uv run pytest tests/ -v --cov&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;data --cov&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;models --cov&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;training --cov-report&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;html
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Using the Python runner&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;python scripts/test.py --coverage
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;run-specific-tests&#34;&gt;Run Specific Tests&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Run only dataloader tests&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;make test-dataloaders
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# or&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;uv run pytest tests/test_dataloaders.py -v
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Run specific test by name&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;uv run pytest tests/test_dataloaders.py::TestLFBETransform::test_transform_1d_input -v
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Run tests matching a pattern&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;uv run pytest tests/ -k &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;lfbe&amp;#34;&lt;/span&gt; -v
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;hr&gt;
+&lt;h2 id=&#34;test-structure&#34;&gt;Test Structure&lt;/h2&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;tests/
+├── __init__.py
+├── test_dataloaders.py          # Data loader tests
+└── test_models.py               # Model tests
+
+scripts/
+├── run_tests.sh                 # Shell script for local testing
+└── test.py                      # Python runner with detailed output
+&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&#34;test-files&#34;&gt;Test Files&lt;/h3&gt;
+&lt;h4 id=&#34;teststest_dataloaderspy&#34;&gt;&lt;code&gt;tests/test_dataloaders.py&lt;/code&gt;&lt;/h4&gt;
+&lt;p&gt;Tests for data loading and feature extraction:&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

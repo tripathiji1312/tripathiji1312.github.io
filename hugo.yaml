@@ -41,6 +41,9 @@ params:
   schema:
     publisherType: "Person"
 
+  # Enable KaTeX math rendering via extend_head.html
+  math: true
+
   # UI & Aesthetics
   defaultTheme: "dark"
   disableThemeToggle: false
@@ -105,8 +108,20 @@ menu:
       url: "/tags/"
       weight: 40
 
-# Markup configuration for proper heading IDs (SEO anchor links)
+# Markup configuration for proper heading IDs (SEO anchor links) and math passthrough
 markup:
   goldmark:
     renderer:
       unsafe: true
+    extensions:
+      passthrough:
+        delimiters:
+          block:
+          - - '\['
+            - '\]'
+          - - $$
+            - $$
+          inline:
+          - - '\('
+            - '\)'
+        enable: true

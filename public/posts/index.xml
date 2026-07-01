@@ -2,25 +2,32 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Posts on Swarnim Tripathi</title>
-    <link>http://localhost:1314/posts/</link>
+    <link>http://localhost:1313/posts/</link>
     <description>Recent content in Posts on Swarnim Tripathi</description>
     <generator>Hugo</generator>
     <language>en</language>
     <copyright>2026 Swarnim Tripathi</copyright>
-    <lastBuildDate>Sun, 17 May 2026 23:55:54 +0530</lastBuildDate>
-    <atom:link href="http://localhost:1314/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 01 Jul 2026 23:05:53 +0530</lastBuildDate>
+    <atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>DISENT-KWS: Teaching a Model to Unlearn Speaker Identity for Robust Keyword Spotting</title>
+      <link>http://localhost:1313/posts/disent-kws/</link>
+      <pubDate>Wed, 01 Jul 2026 23:05:53 +0530</pubDate>
+      <guid>http://localhost:1313/posts/disent-kws/</guid>
+      <description>A deep dive into DISENT-KWS, a 1.8M parameter model that disentangles phonetic content from speaker identity for robust custom word detection. We cover the architecture, the training pipeline, ablation results, and honest reflections on what worked, what did not, and where we would go next.</description>
+    </item>
     <item>
       <title>Building of pytorch internals</title>
-      <link>http://localhost:1314/posts/strides-pytorch/</link>
+      <link>http://localhost:1313/posts/strides-pytorch/</link>
       <pubDate>Sun, 17 May 2026 23:55:54 +0530</pubDate>
-      <guid>http://localhost:1314/posts/strides-pytorch/</guid>
+      <guid>http://localhost:1313/posts/strides-pytorch/</guid>
       <description>&lt;p&gt;So if we take the picture of a &lt;code&gt;tensor&lt;/code&gt; in our mind, we can think of it as infinetely length cube representation of number.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Deconstructing my PyTorch ATen PR: What happens when you index a Tensor?</title>
-      <link>http://localhost:1314/posts/pytorch-aten-dispatch/</link>
+      <link>http://localhost:1313/posts/pytorch-aten-dispatch/</link>
       <pubDate>Sun, 17 May 2026 01:00:00 +0530</pubDate>
-      <guid>http://localhost:1314/posts/pytorch-aten-dispatch/</guid>
+      <guid>http://localhost:1313/posts/pytorch-aten-dispatch/</guid>
       <description>My PyTorch PR that fixed empty-index crashes in ATen&amp;#39;s tensor indexing... tracing the dispatch path from Python to C&#43;&#43; and the validation fix in IndexingUtils.h.</description>
     </item>
   </channel>

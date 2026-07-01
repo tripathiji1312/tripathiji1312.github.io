@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="dark">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Identity Is Not the Keyword | Swarnim Tripathi</title>
+<meta name="keywords" content="custom keyword spotting, speech disentanglement, BC-ResNet, GRL gradient reversal, CLUB mutual information, speaker verification, custom wake word, edge ML, tinyML keyword spotter, speaker embedding disentanglement, prototypical scoring, few-shot enrollment, Causal Conformer, ECAPA-TDNN speaker verification">
+<meta name="description" content="A deep dive into DISENT-KWS: a 1.8M parameter model that disentangles phonetic content from speaker identity for robust custom keyword spotting on edge devices. Combines adversarial training, mutual information minimization, and dual-head scoring for speaker-aware wake word detection.">
+<meta name="author" content="Sohini Banerjee and Swarnim Tripathi">
+<link rel="canonical" href="http://localhost:1313/posts/disent-kws/">
+<meta name="google-site-verification" content="pMC060M3OeUsp0smKjassCkHJrqqMeImAL2tgeNzaws">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.68fb869ce77fabfa573b9f3e2967571898d52211187a89fe352d5ffffed376fa.css" integrity="sha256-aPuGnOd/q/pXO58&#43;KWdXGJjVIhEYeon&#43;NS1f//7Tdvo=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#1a1a2e">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/disent-kws/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "light") {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👋</text></svg>">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: '\\[', right: '\\]', display: true},
+        {left: '$$', right: '$$', display: true},
+        {left: '\\(', right: '\\)', display: false}
+      ],
+      throwOnError: false
+    });
+  });
+</script>
+
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-6LD479KS5L"></script>
+      <script>
+        var doNotTrack = false;
+        if ( true ) {
+          var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
+          var doNotTrack = (dnt == "1" || dnt == "yes");
+        }
+        if (!doNotTrack) {
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-6LD479KS5L');
+        }
+      </script><meta property="og:url" content="http://localhost:1313/posts/disent-kws/">
+  <meta property="og:site_name" content="Swarnim Tripathi">
+  <meta property="og:title" content="Identity Is Not the Keyword">
+  <meta property="og:description" content="A deep dive into DISENT-KWS: a 1.8M parameter model that disentangles phonetic content from speaker identity for robust custom keyword spotting on edge devices. Combines adversarial training, mutual information minimization, and dual-head scoring for speaker-aware wake word detection.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-07-01T23:05:53+05:30">
+    <meta property="article:modified_time" content="2026-07-01T23:05:53+05:30">
+    <meta property="article:tag" content="Keyword Spotting">
+    <meta property="article:tag" content="Speech Disentanglement">
+    <meta property="article:tag" content="Speaker Verification">
+    <meta property="article:tag" content="Edge AI">
+    <meta property="article:tag" content="TinyML">
+    <meta property="article:tag" content="Deep-Learning">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Identity Is Not the Keyword">
+  <meta name="twitter:description" content="A deep dive into DISENT-KWS: a 1.8M parameter model that disentangles phonetic content from speaker identity for robust custom keyword spotting on edge devices. Combines adversarial training, mutual information minimization, and dual-head scoring for speaker-aware wake word detection.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "http://localhost:1313/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Identity Is Not the Keyword",
+      "item": "http://localhost:1313/posts/disent-kws/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Identity Is Not the Keyword",
+  "name": "Identity Is Not the Keyword",
+  "description": "A deep dive into DISENT-KWS: a 1.8M parameter model that disentangles phonetic content from speaker identity for robust custom keyword spotting on edge devices. Combines adversarial training, mutual information minimization, and dual-head scoring for speaker-aware wake word detection.",
+  "keywords": [
+    "custom keyword spotting", "speech disentanglement", "BC-ResNet", "GRL gradient reversal", "CLUB mutual information", "speaker verification", "custom wake word", "edge ML", "tinyML keyword spotter", "speaker embedding disentanglement", "prototypical scoring", "few-shot enrollment", "Causal Conformer", "ECAPA-TDNN speaker verification"
+  ],
+  "articleBody": "Problem Formulation Consider a microphone array recording a monaural acoustic signal in a noisy reverberant environment. The signal can be modeled as:\n$$x(t) = \\left( s_T(t) * h_T(t) \\right) + \\sum_{i=1}^{I} \\left( s_i(t) * h_i(t) \\right) + n(t)$$where \\(s_T(t)\\) is the dry audio from the target speaker, \\(s_i(t)\\) are interfering background speakers, \\(h(t)\\) are Room Impulse Responses (RIRs), \\(*\\) denotes convolution, and \\(n(t)\\) is additive environmental noise.\nThe objective is to learn a mapping \\(f(x) \\to D \\in \\{0, 1\\}\\) that satisfies:\n$$D = 1 \\iff \\left( \\mathcal{K}(x) = k_T \\right) \\land \\left( \\mathcal{S}(x) = s_T \\right)$$where \\(\\mathcal{K}(x)\\) identifies the keyword content and \\(\\mathcal{S}(x)\\) identifies the speaker. The detection fires only when both conditions hold simultaneously.\nThe model must operate under tight constraints: fewer than 3 million parameters, CPU inference under 200 ms for a 2-second window, real-time factor \\(\\text{xRT} = \\Delta\\tau / T \u003c 0.20\\), and robustness across SNR from \\(-5\\) to 30 dB. These constraints come from the target deployment scenario: a microcontroller with no GPU, no cloud offloading, and a power budget that rules out large transformer models. Every parameter counts. Every millisecond matters. This rules out the dominant approach of fine-tuning a large pre-trained model and forces us to design from scratch.\nWhy Explicit Disentanglement A standard keyword spotter trained on multi-speaker data learns correlations between acoustic features and keyword labels but never explicitly separates content from identity. To see why this is a problem, consider the information flow. Let \\(\\mathbf{z} \\in \\mathbb{R}^d\\) be the shared embedding produced by the encoder. This single vector encodes both what word was spoken and who spoke it: mutual informations \\(I(\\mathbf{z}; \\text{keyword}) \u003e 0\\) and \\(I(\\mathbf{z}; \\text{speaker}) \u003e 0\\). The encoder has no incentive to orthogonalize these factors because the training objective is purely discriminative.\nNow consider what happens at inference. The user enrolls by providing 5+ utterances of a keyword. We compute a prototype embedding \\(\\mathbf{p} = \\frac{1}{N}\\sum_i \\mathbf{z}_i\\) from these utterances. At runtime, we compare each incoming embedding against \\(\\mathbf{p}\\). If the embedding space is entangled, a confuser who speaks a phonetically similar word in a voice that happens to resemble the target’s can land arbitrarily close to \\(\\mathbf{p}\\) in embedding space. The model never learned to penalize this because the training objective \\(P(\\text{keyword} | \\text{audio})\\) does not factorize the generative components of the signal. Under ideal conditions the joint distribution factors as:\n$$P(\\text{audio}) = P(\\text{content}) \\cdot P(\\text{speaker}) \\cdot P(\\text{channel})$$But the discriminative posterior estimated by a standard classifier does not reflect this factorization. It compresses both content and speaker variation into the same dimensions.\nThe solution is to design two independent embedding spaces \\(\\mathbf{z}_{phn} \\in \\mathbb{R}^{192}\\) and \\(\\mathbf{z}_{spk} \\in \\mathbb{R}^{192}\\) with the property that \\(I(\\mathbf{z}_{phn}; \\mathbf{z}_{spk}) \\approx 0\\). Why 192 dimensions? This is a design tradeoff. Fewer dimensions (e.g., 64) would save parameters but would limit the model’s capacity to separate 35 keyword classes and 1,251 speakers in hyperspherical space. More dimensions (e.g., 512) would consume too much of the 3M parameter budget on the final projection layers. At 192, each head uses roughly 0.2M parameters for the projection, leaving the bulk of the budget for the shared computation. We verified empirically that increasing to 256 yielded diminishing returns while decreasing to 128 hurt speaker EER by 2.3 percentage points.\nArchitecture The model follows a single-backbone, dual-head design. Why not two completely separate models? A shared backbone forces both tasks to build on common acoustic representations: both phonetic content and speaker identity require the same low-level feature hierarchies (frequency modulation, formant structure, harmonic content). Two separate encoders would duplicate this computation and consume the entire parameter budget on overlapping work. And why not a single unified head? Because a single embedding space cannot satisfy both objectives simultaneously: speaker discrimination benefits from pooling over the full time-frequency plane, while keyword detection needs frame-level local patterns. The dual-head design extracts common features once, then branches into specialized pathways for each objective.\nAcoustic Front-End The raw waveform at 16 kHz is framed with a Hamming window (25 ms, 10 ms hop). For each frame we compute the Short-Time Fourier Transform:\n$$X(t, k) = \\sum_{n=0}^{N-1} x[t R + n] \\cdot w[n] \\cdot e^{-j \\frac{2 \\pi k n}{N}}$$The power spectrum is mapped to 80 Mel-scale filterbanks:\n$$m = 2595 \\cdot \\log_{10}\\left(1 + \\frac{f}{700}\\right)$$$$\\text{LFBE}(t, m) = \\log \\left( \\sum_{k=0}^{N/2} |X(t, k)|^2 \\cdot H_m(k) + \\epsilon \\right)$$The output for a 2-second segment is \\(\\mathbf{X} \\in \\mathbb{R}^{1 \\times 80 \\times 200}\\). Why 16 kHz sampling and 80 Mel bins? The keyword bandwidth (voice fundamental up to the first few formants) is well contained below 8 kHz, satisfying Nyquist at 16 kHz with margin. Eighty Mel bins provide roughly 12 bins per critical band in the 0-8 kHz range, sufficient to resolve formant structure for phoneme discrimination without the computational overhead of full-resolution spectrograms (e.g., 257 FFT bins). The 200-frame dimension follows from the 10 ms hop: 2,000 ms / 10 ms = 200 frames per utterance.\nShared Encoder: BC-ResNet-2 [1] The Broadcasted Residual Network [1] splits computation into two parallel pathways within each residual block. Let \\(\\mathbf{x} \\in \\mathbb{R}^{C_{in} \\times F \\times T}\\) be the input. The first pathway applies a 2D convolution to capture local frequency-time structure:\n$$\\mathbf{y}_{2D} = \\text{ReLU}(\\text{BatchNorm2D}(\\text{Conv2D}(\\mathbf{x}; \\mathbf{W}_{2D})))$$The second pathway compresses the frequency axis via average pooling and applies a 1D convolution for temporal context:\n$$\\mathbf{y}_{1D} = \\text{ReLU}\\left(\\text{BatchNorm1D}\\left(\\text{Conv1D}\\left(\\frac{1}{F}\\sum_{f=1}^F \\mathbf{x}[:, f, :]; \\mathbf{W}_{1D}\\right)\\right)\\right)$$The temporal feature map is broadcast back across the frequency dimension:\n$$\\mathbf{y}_{block} = \\mathbf{y}_{2D} + \\text{Broadcast}\\left(\\mathbf{y}_{1D}, \\text{target\\_shape}=(C_{out}, F', T)\\right)$$This separation reduces parameters because global temporal statistics (average energy over frequency) are computed cheaply by the 1D path while spatial-frequency detail is preserved by the 2D path. The shared encoder totals 33.8K parameters.\nParameter budget across all model components. The Causal Conformer phonetic head dominates at 1.67M params, while the shared encoder runs on just 33.8K. Phonetic Head: Causal Conformer [2] The phonetic head uses a Causal Conformer [2]. Why a Conformer rather than a plain CNN or a Transformer? Keyword discrimination requires resolving local phonetic detail (e.g., the plosive burst distinguishing “bat” from “pat”) over short time scales, and global temporal structure (e.g., the stress pattern distinguishing “record” noun from “record” verb) over longer spans. Convolutions capture local patterns efficiently but struggle with long-range dependencies. Self-attention captures long-range dependencies but dilutes local detail in its global receptive field. The Conformer combines both: depthwise convolutions process local structure at each time step, while self-attention layers propagate information across the entire sequence. The Macaron-style sandwich (feed-forward → conv → attention → feed-forward) ensures each operation acts on features already transformed by the other. Each Conformer block follows a Macaron-style structure:\n$$\\tilde{\\mathbf{x}}_i = \\mathbf{x}_{i-1} + \\frac{1}{2} \\text{FFN}(\\mathbf{x}_{i-1})$$$$\\mathbf{x}'_i = \\tilde{\\mathbf{x}}_i + \\text{MHSA}(\\tilde{\\mathbf{x}}_i)$$$$\\mathbf{x}''_i = \\mathbf{x}'_i + \\text{CausalConv1D}(\\mathbf{x}'_i)$$$$\\mathbf{x}_i = \\text{LayerNorm}\\left(\\mathbf{x}''_i + \\frac{1}{2} \\text{FFN}(\\mathbf{x}''_i)\\right)$$Causality is enforced via a masked attention matrix:\n$$A_{i,j} = \\frac{\\mathbf{q}_i \\mathbf{k}_j^T}{\\sqrt{d_k}} + M_{i,j}, \\quad M_{i,j} = \\begin{cases} 0 \u0026 \\text{if } j \\le i \\\\ -\\infty \u0026 \\text{if } j \u003e i \\end{cases}$$The output is the phonetic embedding \\(\\mathbf{z}_{phn} \\in \\mathbb{R}^{192}\\). The phonetic head contains 1,673K parameters (92.6% of the model).\nSpeaker Head: ECAPA-TDNN Lite [3] The speaker head is a lightweight ECAPA-TDNN [3] built on SpeechBrain [13]. Speaker identity is a global property of an utterance: it does not change frame to frame. The task requires pooling discriminative cues across the utterance while suppressing noise-dominated frames. A standard CNN with mean pooling treats every frame equally, which is suboptimal because speaker-discriminative segments (vowel nuclei, nasal formants) are sparse and unevenly distributed. ECAPA-TDNN solves this with two key mechanisms. The Squeeze-and-Excitation block computes channel attention:\n$$\\mathbf{s} = \\sigma\\left(\\mathbf{W}_2 \\cdot \\text{ReLU}\\left(\\mathbf{W}_1 \\cdot \\left(\\frac{1}{T}\\sum_{t=1}^T \\mathbf{h}_t\\right)\\right)\\right)$$The gated features pass through Attentive Statistics Pooling (ASP), which learns frame-level attention weights:\n$$e_t = \\mathbf{v}^T \\tanh\\left(\\mathbf{W} \\tilde{\\mathbf{h}}_t + \\mathbf{b}\\right), \\quad \\alpha_t = \\frac{e^{e_t}}{\\sum_{\\tau=1}^T e^{e_{\\tau}}}$$The attention-weighted statistics form the speaker embedding:\n$$\\boldsymbol{\\mu} = \\sum_{t=1}^T \\alpha_t \\tilde{\\mathbf{h}}_t, \\quad \\boldsymbol{\\sigma} = \\sqrt{\\sum_{t=1}^T \\alpha_t \\left(\\tilde{\\mathbf{h}}_t - \\boldsymbol{\\mu}\\right)^2}$$$$\\mathbf{z}_{spk} = \\mathbf{W}_{proj} \\cdot [\\boldsymbol{\\mu}; \\boldsymbol{\\sigma}] + \\mathbf{b}_{proj}$$ASP is more parameter-efficient than global pooling because speaker-discriminative information is not uniformly distributed across frames. The speaker head uses 88.8K parameters.\nDisentanglement The shared backbone produces features used by both heads. Without intervention, the two embedding spaces become correlated: the speaker head relies on phonetic cues, and the phonetic head encodes speaker-specific traits. We apply two complementary mechanisms to enforce separation.\nGradient Reversal Layer [4] An auxiliary speaker classifier \\(D_{spk}\\) is attached to the phonetic embedding \\(\\mathbf{z}_{phn}\\). Why GRL rather than a simpler decorrelation penalty (e.g., minimizing the Frobenius norm of the cross-covariance matrix between \\(\\mathbf{z}_{phn}\\) and \\(\\mathbf{z}_{spk}\\))? A covariance-based penalty can reduce linear correlation but does not force the embeddings to discard speaker information. The encoder could still encode speaker identity nonlinearly while maintaining zero linear correlation. GRL, by contrast, pits the encoder against a powerful discriminator in a minimax game: the discriminator tries to decode speaker identity from \\(\\mathbf{z}_{phn}\\), and the encoder tries to make this impossible. This forces the encoder to remove whatever speaker information the discriminator can exploit, and the discriminator adaptively discovers new patterns to exploit. The GRL [4] sits between the phonetic head and the classifier. During forward propagation it passes data unchanged. During backpropagation it inverts gradients with scaling factor \\(-\\lambda\\):\n$$\\text{Forward: } R_\\lambda(\\mathbf{x}) = \\mathbf{x}, \\quad \\text{Backward: } \\frac{d R_\\lambda(\\mathbf{x})}{d\\mathbf{x}} = -\\lambda \\mathbf{I}$$The overall objective is:\n$$E(G_{back}, G_{phn}, D_{spk}) = L_{kw}(G_{back}, G_{phn}) - \\lambda L_{adv}(G_{back}, D_{spk})$$As \\(D_{spk}\\) improves at speaker classification, the inverted gradient pushes the encoder to produce \\(\\mathbf{z}_{phn}\\) that is less informative for speaker identity. The equilibrium is reached when \\(\\mathbf{z}_{phn}\\) contains no linearly decodable speaker information.\nCLUB Mutual Information Minimization [5] GRL only removes information that the auxiliary classifier can linearly decode. Residual nonlinear dependencies can persist. The mutual information between the two embeddings is:\n$$I(\\mathbf{Z}_{phn}; \\mathbf{Z}_{spk}) = \\mathbb{E}_{P(\\mathbf{Z}_{phn}, \\mathbf{Z}_{spk})} \\left[ \\log \\frac{P(\\mathbf{Z}_{phn} | \\mathbf{Z}_{spk})}{P(\\mathbf{Z}_{phn})} \\right]$$Since the true conditional is intractable, we use a variational estimator \\(q_\\theta\\). The Contrastive Log-ratio Upper Bound (CLUB) [5] provides a tractable upper bound:\n$$I_{CLUB}(\\mathbf{Z}_{phn}; \\mathbf{Z}_{spk}) = \\frac{1}{B} \\sum_{i=1}^B \\left[ \\log q_\\theta(\\mathbf{z}_{phn, i} | \\mathbf{z}_{spk, i}) - \\frac{1}{B} \\sum_{j=1}^B \\log q_\\theta(\\mathbf{z}_{phn, j} | \\mathbf{z}_{spk, i}) \\right]$$The optimization alternates between updating \\(q_\\theta\\) to fit the conditional, and minimizing the bound with respect to encoder parameters:\n$$\\max_\\theta \\frac{1}{B} \\sum_{i=1}^B \\log q_\\theta(\\mathbf{z}_{phn, i} | \\mathbf{z}_{spk, i}), \\quad \\min_{\\Theta} I_{CLUB}(\\mathbf{Z}_{phn}; \\mathbf{Z}_{spk})$$The combination of GRL and CLUB removes both linearly decodable and nonlinearly dependent speaker information from the phonetic pathway.\nTraining Pipeline Training proceeds in four phases, each with distinct optimization objectives. Why four phases instead of joint end-to-end training from scratch? The objectives conflict. AAM-Softmax classification requires the model to exploit all available information (content + speaker) to minimize cross-entropy. Disentanglement asks the opposite: discard speaker information from the phonetic pathway and keyword information from the speaker pathway. GE2E speaker refinement requires utterance-level comparison, which is incompatible with the frame-level objectives of the phonetic head. Joint optimization from scratch creates destructive gradient interference: the disentanglement loss pushes gradients that oppose the classification loss, and neither objective converges. By decomposing into phases, each set of weights is initialized to a reasonable basin before the next objective is introduced.\nPhase 1: AAM-Softmax Pre-Training [6] The backbone and heads are pre-trained separately on keyword classification (Google Speech Commands v2 [10], 35 classes, 105K utterances) and speaker classification (VoxCeleb1 [11], 1,251 speakers, 153K utterances). Both use Additive Angular Margin Softmax [6]:\n$$L_{AAM} = -\\frac{1}{B} \\sum_{i=1}^B \\log \\frac{e^{s \\cdot \\cos(\\theta_{y_i} + m)}}{e^{s \\cdot \\cos(\\theta_{y_i} + m)} + \\sum_{j \\neq y_i} e^{s \\cdot \\cos(\\theta_j)}}$$Why AAM-Softmax over plain softmax? Standard softmax produces embeddings that are separable by class but not necessarily compact within class. The decision boundaries are linear hyperplanes in the embedding space, and there is no mechanism to reduce intra-class variance. AAM-Softmax inserts a multiplicative margin \\(m\\) into the angle between the embedding vector \\(\\mathbf{x}_i\\) and the weight vector \\(\\mathbf{W}_{y_i}\\) of its target class. The loss function requires \\(\\cos(\\theta_{y_i} + m) \u003e \\cos(\\theta_j)\\) for all \\(j \\neq y_i\\), which tightens the angular decision boundary around each class. Geometrically, each class occupies a conical region of width \\(m\\) on the hypersphere. For 35 keyword classes, this is essential: words like “yes” and “yep” or “two” and “too” are acoustically close, and the margin prevents them from overlapping in embedding space. At this stage there is no disentanglement.\nPhase 2: Joint Training with Disentanglement GRL, CLUB, and the dual-gate scorer are enabled. Two additional loss terms are introduced. The triplet loss separates positive and negative pairs:\n$$L_{triplet} = \\max\\left(0, \\|\\mathbf{z}_a - \\mathbf{z}_p\\|_2^2 - \\|\\mathbf{z}_a - \\mathbf{z}_n\\|_2^2 + \\alpha\\right)$$Why both triplet and rejection losses? The triplet loss ensures that a random negative utterance stays further from the anchor than the positive utterance by margin \\(\\alpha\\). This creates relative ordering in embedding space. However, it does not enforce an absolute floor on confuser similarity. A confuser could be closer to the anchor than the positive by less than \\(\\alpha\\) and still incur zero triplet loss. The rejection loss fixes this by requiring an absolute minimum distance \\(\\gamma\\) for any confuser utterance. The two losses operate at different levels: triplet creates relative separation, rejection imposes absolute boundaries.\n$$L_{reject} = \\max\\left(0, \\gamma - \\|\\mathbf{z}_a - \\mathbf{z}_{confuser}\\|_2^2\\right)$$Phase 3a: GE2E Speaker Refinement [7] The speaker head is fine-tuned using Generalized End-to-End loss [7]. Why GE2E instead of the triplet loss already used in Phase 2? Triplet loss compares one positive and one negative per anchor, which requires careful mining to avoid easy negatives that contribute zero loss. GE2E computes similarities between every utterance and every speaker centroid in the batch, producing \\(N \\times M\\) comparisons per step. This is more sample-efficient because every utterance in the batch contributes to the gradient through the softmax over all centroids. The inference-time operation (compare against a prototype centroid) also matches the training objective directly: GE2E trains embeddings to maximize similarity to their own centroid, which is exactly what the scorer does at runtime. For a batch of \\(N\\) speakers with \\(M\\) utterances each, let \\(\\mathbf{e}_{ji}\\) be the embedding for utterance \\(i\\) of speaker \\(j\\). The centroid excluding utterance \\(i\\) is:\n$$\\mathbf{c}_{j}^{(-i)} = \\frac{1}{M-1} \\sum_{m \\neq i} \\mathbf{e}_{jm}$$The similarity matrix \\(S_{ji,k} = w \\cdot \\cos(\\mathbf{e}_{ji}, \\mathbf{c}_k) + b\\) is optimized via softmax:\n$$L_{GE2E} = -\\frac{1}{N \\cdot M} \\sum_{j=1}^N \\sum_{i=1}^M \\log \\frac{e^{S_{ji,j}}}{\\sum_{k=1}^N e^{S_{ji,k}}}$$Phase 3b: Hard-Negative GE2E GE2E is extended with hard-negative mining from LibriPhrase [12]. For each anchor, a phonetically similar confuser from a different speaker is retrieved and penalized:\n$$L_{hard} = L_{GE2E} + \\beta \\cdot \\max\\left(0, \\cos(\\mathbf{e}_{anchor}, \\mathbf{e}_{hardneg}) - \\delta\\right)$$This phase targets the hardest failure mode: a confuser whose voice and chosen keyword are both similar to the target. In our tests it reduced joint EER by approximately 2 percentage points.\nThe complete training pipeline: Phase 1 pre-trains individually, Phase 2 introduces disentanglement + joint objectives, Phase 3a refines speaker head with GE2E, Phase 3b adds hard-negative mining. Scoring and Decision At enrollment, prototype embeddings \\(\\mathbf{p}_{kw}\\) and \\(\\mathbf{p}_{spk}\\) are computed by averaging \\(\\mathbf{z}_{phn}\\) and \\(\\mathbf{z}_{spk}\\) across enrollment utterances, following the prototypical network formulation [8]. At detection time, cosine similarities are computed:\n$$\\text{Sim}(\\mathbf{z}_1, \\mathbf{z}_2) = \\frac{\\mathbf{z}_1 \\cdot \\mathbf{z}_2^T}{\\|\\mathbf{z}_1\\|_2 \\|\\mathbf{z}_2\\|_2}$$$$\\text{Score} = w_{kw} \\cdot \\text{Sim}(\\mathbf{z}_{phn}, \\mathbf{p}_{kw}) + w_{spk} \\cdot \\text{Sim}(\\mathbf{z}_{spk}, \\mathbf{p}_{spk})$$The weights \\(w_{kw}\\) and \\(w_{spk}\\) are obtained by grid search over \\(10 \\times 10\\) combinations spanning \\([0, 1]\\) at increments of 0.1. This granularity captures the tradeoff landscape: coarser (\\(5 \\times 5\\)) misses the optimal operating point, finer (\\(20 \\times 20\\)) offers no measurable improvement while costing 4x computation. The optimum is \\(w_{kw}=0.30, w_{spk}=0.65\\). The sum is 0.95 rather than 1.0 because the keyword-only EER (4.69%) is much lower than the speaker-only EER (17.86%). The scorer compensates by weighting the less reliable speaker head more heavily.\nFor streaming, Exponential Moving Average smoothing is applied:\n$$\\bar{S}_t = \\alpha_{ema} \\cdot \\bar{S}_{t-1} + (1 - \\alpha_{ema}) \\cdot \\text{Score}_t$$with \\(\\alpha_{ema}=0.7\\). The EMA dampens transient false accepts from noise bursts or non-speech artifacts. Why \\(\\alpha=0.7\\) rather than a higher value like 0.95? Speaker turns happen on timescales of hundreds of milliseconds. A score drop from a genuine speaker to a confuser produces a sharp transition in Score\\(_t\\). With \\(\\alpha=0.7\\), the smoothed score drops to 30% of its original value within 2 frames (20 ms), preserving responsiveness to speaker changes. Higher values (e.g., 0.95) would create a long tail that masks true rejections for up to 20 frames. Lower values (e.g., 0.3) fail to suppress the transient noise. The value 0.7 was validated by sweeping \\(\\alpha \\in [0.5, 0.95]\\) on a held-out validation set and selecting the minimum joint EER. The final decision is:\n$$D = \\begin{cases} 1 \u0026 \\text{if } \\bar{S}_t \\ge \\tau_{EER} \\\\ 0 \u0026 \\text{if } \\bar{S}_t \u003c \\tau_{EER} \\end{cases}$$where \\(\\tau_{EER} = 0.2222\\) is the threshold calibrated via DET curve analysis.\nResults Metric Value Parameters 1.806 M ONNX Size 0.60 MB (INT8) CPU Latency 26.43 ms (p95: 28.29 ms) Real-Time Factor 0.0132 Keyword EER 4.69% Speaker EER 17.86% Joint EER 23.47% Joint AUC 0.8425 The keyword EER of 4.69% is competitive with larger models that lack a disentanglement constraint. The model processes a 2-second window in 26 ms (xRT = 0.0132), well under the 0.20 target.\nThe speaker EER (17.86%) is higher than dedicated speaker verification models (under 5% on VoxCeleb1). This is expected given the parameter budget (88.8K parameters versus millions in a full ECAPA-TDNN) and the competing objectives of the shared backbone.\nThe joint EER (23.47%) is the relevant operating point. A false accept requires both keyword and speaker to match incorrectly in the same trial. The joint AUC of 0.8425 indicates strong separation between positive and negative trials across thresholds.\nDetection Error Trade-off curve for joint keyword + speaker verification. The EER operating point at \\(\\tau = 0.2222\\) balances false accepts and false rejects. Ablation Study Configuration Keyword EER (%) Speaker EER (%) Parameters Full Model (baseline) 4.69 17.33 1.806 M No FiLM [14] 4.69 17.33 1.683 M No Speaker Head 4.69 N/A 1.806 M No Temporal Block [9] 11.22 25.48 1.796 M Equal Scorer Weights 4.69 17.33 1.806 M Temporal block. Removing the Mamba SSM [9] or Dilated Conv1D module increases keyword EER by 2.4x (4.69% to 11.22%) and speaker EER by 1.5x (17.33% to 25.48%). Temporal context modeling is critical for distinguishing phonetically similar words like “sit” and “sat” that differ primarily in their temporal envelope. Without temporal integration, the model reduces to a bag-of-frames classifier that averages over time and loses the ordering information that distinguishes sequential phoneme patterns.\nSpeaker head removal. Ignoring the speaker head output during scoring leaves keyword EER unchanged (4.69% in both conditions). This is expected: the speaker head receives its own loss signal (speaker classification) that does not backpropagate into the keyword pathway beyond the shared backbone. The backbone is already well-optimized for keyword detection from Phase 1 pre-training, and the speaker head’s gradient contributions during Phase 2 are comparatively small (88.8K params vs. 1.67M params in the phonetic head). The parameter count stays at 1.806M because all weights are still present; only the scoring pathway omits the speaker branch.\nFiLM conditioning. The FiLM layer [14] saved 123K parameters when removed, with zero change in either EER. The conditioning likely helps in few-shot or noisy enrollment scenarios, but the GSC plus VoxCeleb test set did not stress this.\nScorer weights. Calibrated weights (0.30/0.65) and equal weights (0.50/0.50) produced identical EER on the standard test set. Calibration matters more at low-FAR operating points, which standard benchmarks do not emphasize.\nComponent-wise ablation impact on Keyword and Speaker EER. The temporal block is the single most critical component. Removing it degrades keyword EER by 2.4x. Limitations and Future Directions Speaker head capacity. 88.8K parameters is too tight for robust speaker verification. Increasing the budget to 5M parameters (still qualifying as a tiny model) or using a backbone that shares computation more efficiently with the speaker head would likely reduce speaker EER.\nGE2E integration. Speaker head refinement via GE2E was restricted to Phases 3a and 3b. Alternating between classification and GE2E objectives throughout Phase 2 would give the speaker head more training exposure before disentanglement constraints are applied.\nGRL and CLUB interaction. GRL removes linearly decodable speaker information. CLUB targets residual nonlinear dependencies. In practice, GRL removed most speaker information first, leaving little for CLUB to act on. The reason is that GRL’s adversarial training provides a stronger, more direct gradient signal: the discriminator explicitly classifies speaker identity, and the gradient reversal directly pushes the encoder away from speaker-predictive features. CLUB’s gradient, by contrast, is an upper-bound estimate of mutual information that is less tightly coupled to the classification objective. A more principled approach would monitor estimated mutual information and activate CLUB only when it rises above a threshold, or schedule the GLR weight \\(\\lambda\\) to be small initially and ramp up gradually so both mechanisms contribute.\nRejection margin sensitivity. The rejection margin \\(\\gamma\\) was fixed across all keywords. The optimal margin depends on intra-class variance of the keyword embeddings: tight clusters need smaller margins, loose clusters need larger ones. Adaptive margin selection would be more robust.\nFar-field evaluation. All benchmarks used clean, single-channel datasets. The SNR robustness curve (evaluated with MUSAN noise [15] from -5 dB to 30 dB) provides some confidence, but real-world far-field conditions with room acoustics and microphone arrays introduce challenges that synthetic noise augmentation does not fully replicate.\nPerformance across -5 dB to 30 dB SNR using MUSAN noise [15] (babble, music, environmental). The model maintains consistent accuracy across the full SNR range. Related Work Two broad approaches exist for custom keyword spotting with speaker verification. The big-model approach uses large pre-trained models (Wav2Vec 2.0, HuBERT, Whisper) with 100M+ parameters and GPU inference, suitable for cloud-connected systems. The tiny-model approach, which this work follows, builds from scratch under aggressive parameter constraints for edge deployment on CPU-only hardware with sub-30 ms latency.\nThis work sits at the intersection of disentangled representation learning (GRL [4], CLUB [5]), efficient speech architectures (BC-ResNet [1], Causal Conformer [2]), and few-shot speaker adaptation (GE2E [7], prototypical scoring [8]). The contribution is in the composition: a 1.8M parameter model with explicit content-identity separation that improves joint keyword-plus-speaker verification over entangled baselines.\nCode and Reproducibility The training pipeline, demo scripts, and ONNX export are open source.\nCode: github.com/tripathiji1312/DISENT_KWS Model weights: Hugging Face (PyTorch + ONNX) Datasets: Google Speech Commands v2 [10], VoxCeleb1 [11], LibriPhrase [12], MUSAN [15] To reproduce the benchmark:\nuv sync --all-extras make test python src/demo.py record --model model_final.pt --out enrollment.pt python src/demo.py detect --enrollment enrollment.pt --auto-threshold References [1] Kim, B. et al. (2021). “BC-ResNet: Broadcasted Residual Learning for Lightweight Noise-Robust Keyword Spotting.” Proc. Interspeech.\n[2] Gulati, A. et al. (2020). “Conformer: Convolution-augmented Transformer for Speech Recognition.” Proc. Interspeech.\n[3] Desplanques, B. et al. (2020). “ECAPA-TDNN: Emphasized Channel Attention, Propagation and Aggregation in TDNN Based Speaker Verification.” Proc. Interspeech.\n[4] Ganin, Y. \u0026 Lempitsky, V. (2015). “Unsupervised Domain Adaptation by Backpropagation.” Proc. ICML.\n[5] Cheng, P. et al. (2020). “CLUB: A Contrastive Log-ratio Upper Bound of Mutual Information.” Proc. ICML.\n[6] Deng, J. et al. (2019). “ArcFace: Additive Angular Margin Loss for Deep Face Recognition.” Proc. CVPR.\n[7] Wan, L. et al. (2018). “Generalized End-to-End Loss for Speaker Verification.” Proc. ICASSP.\n[8] Snell, J. et al. (2017). “Prototypical Networks for Few-shot Learning.” Proc. NeurIPS.\n[9] Gu, A. \u0026 Dao, T. (2023). “Mamba: Linear-Time Sequence Modeling with Selective State Spaces.” arXiv preprint arXiv:2312.00752.\n[10] Warden, P. (2018). “Speech Commands: A Dataset for Limited-Vocabulary Speech Recognition.” arXiv preprint arXiv:1804.03209.\n[11] Nagrani, A. et al. (2017). “VoxCeleb: A Large-Scale Speaker Identification Dataset.” Proc. Interspeech.\n[12] LibriPhrase dataset. Available at: https://huggingface.co/datasets/charsiu/libriphrase\n[13] Ravanelli, M. et al. (2021). “SpeechBrain: A Multi-Task Speech Toolkit.” arXiv preprint arXiv:2106.04624.\n[14] Perez, E. et al. (2018). “FiLM: Visual Reasoning with a General Conditioning Layer.” Proc. AAAI.\n[15] Snyder, D. et al. (2015). “MUSAN: A Music, Speech, and Noise Corpus.” arXiv preprint.\n",
+  "wordCount" : "3927",
+  "inLanguage": "en",
+  "datePublished": "2026-07-01T23:05:53+05:30",
+  "dateModified": "2026-07-01T23:05:53+05:30",
+  "author":{
+    "@type": "Person",
+    "name": "Sohini Banerjee and Swarnim Tripathi"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "http://localhost:1313/posts/disent-kws/"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "Swarnim Tripathi",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "http://localhost:1313/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="Swarnim Tripathi (Alt + H)">Swarnim Tripathi</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li>
+                <a href="http://localhost:1313/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/archives/" title="Archive">
+                    <span>Archive</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="/">Home</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="/posts/">Posts</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      Identity Is Not the Keyword
+    </h1>
+    <div class="post-description">
+      A deep dive into DISENT-KWS: a 1.8M parameter model that disentangles phonetic content from speaker identity for robust custom keyword spotting on edge devices. Combines adversarial training, mutual information minimization, and dual-head scoring for speaker-aware wake word detection.
+    </div>
+    <div class="post-meta">
+
+<span title='2026-07-01 23:05:53 +0530 IST'>July 1, 2026</span>&nbsp;·&nbsp;<span>19 min</span>&nbsp;·&nbsp;<span>Sohini Banerjee and Swarnim Tripathi</span>
+
+</div>
+  </header> <details class="toc" >
+    <summary accesskey="c" title="(Alt + C)">
+        <span class="title">Table of Contents</span>
+    </summary>
+
+    <div class="inner"><ul>
+            <li>
+                <a href="#problem-formulation" aria-label="Problem Formulation">Problem Formulation</a></li>
+            <li>
+                <a href="#why-explicit-disentanglement" aria-label="Why Explicit Disentanglement">Why Explicit Disentanglement</a></li>
+            <li>
+                <a href="#architecture" aria-label="Architecture">Architecture</a><ul>
+                    
+            <li>
+                <a href="#acoustic-front-end" aria-label="Acoustic Front-End">Acoustic Front-End</a></li>
+            <li>
+                <a href="#shared-encoder-bc-resnet-2-1" aria-label="Shared Encoder: BC-ResNet-2 [1]">Shared Encoder: BC-ResNet-2 [1]</a></li>
+            <li>
+                <a href="#phonetic-head-causal-conformer-2" aria-label="Phonetic Head: Causal Conformer [2]">Phonetic Head: Causal Conformer [2]</a></li>
+            <li>
+                <a href="#speaker-head-ecapa-tdnn-lite-3" aria-label="Speaker Head: ECAPA-TDNN Lite [3]">Speaker Head: ECAPA-TDNN Lite [3]</a></li></ul>
+            </li>
+            <li>
+                <a href="#disentanglement" aria-label="Disentanglement">Disentanglement</a><ul>
+                    
+            <li>
+                <a href="#gradient-reversal-layer-4" aria-label="Gradient Reversal Layer [4]">Gradient Reversal Layer [4]</a></li>
+            <li>
+                <a href="#club-mutual-information-minimization-5" aria-label="CLUB Mutual Information Minimization [5]">CLUB Mutual Information Minimization [5]</a></li></ul>
+            </li>
+            <li>
+                <a href="#training-pipeline" aria-label="Training Pipeline">Training Pipeline</a><ul>
+                    
+            <li>
+                <a href="#phase-1-aam-softmax-pre-training-6" aria-label="Phase 1: AAM-Softmax Pre-Training [6]">Phase 1: AAM-Softmax Pre-Training [6]</a></li>
+            <li>
+                <a href="#phase-2-joint-training-with-disentanglement" aria-label="Phase 2: Joint Training with Disentanglement">Phase 2: Joint Training with Disentanglement</a></li>
+            <li>
+                <a href="#phase-3a-ge2e-speaker-refinement-7" aria-label="Phase 3a: GE2E Speaker Refinement [7]">Phase 3a: GE2E Speaker Refinement [7]</a></li>
+            <li>
+                <a href="#phase-3b-hard-negative-ge2e" aria-label="Phase 3b: Hard-Negative GE2E">Phase 3b: Hard-Negative GE2E</a></li></ul>
+            </li>
+            <li>
+                <a href="#scoring-and-decision" aria-label="Scoring and Decision">Scoring and Decision</a></li>
+            <li>
+                <a href="#results" aria-label="Results">Results</a></li>
+            <li>
+                <a href="#ablation-study" aria-label="Ablation Study">Ablation Study</a></li>
+            <li>
+                <a href="#limitations-and-future-directions" aria-label="Limitations and Future Directions">Limitations and Future Directions</a></li>
+            <li>
+                <a href="#related-work" aria-label="Related Work">Related Work</a></li>
+            <li>
+                <a href="#code-and-reproducibility" aria-label="Code and Reproducibility">Code and Reproducibility</a></li>
+            <li>
+                <a href="#references" aria-label="References">References</a>
+            </li>
+        </ul>
+    </div>
+</details>
+
+  <div class="post-content md-content"><h2 id="problem-formulation">Problem Formulation<a hidden class="anchor" aria-hidden="true" href="#problem-formulation">#</a></h2>
+<p>Consider a microphone array recording a monaural acoustic signal in a noisy reverberant environment. The signal can be modeled as:</p>
+$$x(t) = \left( s_T(t) * h_T(t) \right) + \sum_{i=1}^{I} \left( s_i(t) * h_i(t) \right) + n(t)$$<p>where \(s_T(t)\) is the dry audio from the target speaker, \(s_i(t)\) are interfering background speakers, \(h(t)\) are Room Impulse Responses (RIRs), \(*\) denotes convolution, and \(n(t)\) is additive environmental noise.</p>
+<p>The objective is to learn a mapping \(f(x) \to D \in \{0, 1\}\) that satisfies:</p>
+$$D = 1 \iff \left( \mathcal{K}(x) = k_T \right) \land \left( \mathcal{S}(x) = s_T \right)$$<p>where \(\mathcal{K}(x)\) identifies the keyword content and \(\mathcal{S}(x)\) identifies the speaker. The detection fires only when both conditions hold simultaneously.</p>
+<p>The model must operate under tight constraints: fewer than 3 million parameters, CPU inference under 200 ms for a 2-second window, real-time factor \(\text{xRT} = \Delta\tau / T < 0.20\), and robustness across SNR from \(-5\) to 30 dB. These constraints come from the target deployment scenario: a microcontroller with no GPU, no cloud offloading, and a power budget that rules out large transformer models. Every parameter counts. Every millisecond matters. This rules out the dominant approach of fine-tuning a large pre-trained model and forces us to design from scratch.</p>
+<h2 id="why-explicit-disentanglement">Why Explicit Disentanglement<a hidden class="anchor" aria-hidden="true" href="#why-explicit-disentanglement">#</a></h2>
+<p>A standard keyword spotter trained on multi-speaker data learns correlations between acoustic features and keyword labels but never explicitly separates content from identity. To see why this is a problem, consider the information flow. Let \(\mathbf{z} \in \mathbb{R}^d\) be the shared embedding produced by the encoder. This single vector encodes both what word was spoken and who spoke it: mutual informations \(I(\mathbf{z}; \text{keyword}) > 0\) and \(I(\mathbf{z}; \text{speaker}) > 0\). The encoder has no incentive to orthogonalize these factors because the training objective is purely discriminative.</p>
+<p>Now consider what happens at inference. The user enrolls by providing 5+ utterances of a keyword. We compute a prototype embedding \(\mathbf{p} = \frac{1}{N}\sum_i \mathbf{z}_i\) from these utterances. At runtime, we compare each incoming embedding against \(\mathbf{p}\). If the embedding space is entangled, a confuser who speaks a phonetically similar word in a voice that happens to resemble the target&rsquo;s can land arbitrarily close to \(\mathbf{p}\) in embedding space. The model never learned to penalize this because the training objective \(P(\text{keyword} | \text{audio})\) does not factorize the generative components of the signal. Under ideal conditions the joint distribution factors as:</p>
+$$P(\text{audio}) = P(\text{content}) \cdot P(\text{speaker}) \cdot P(\text{channel})$$<p>But the discriminative posterior estimated by a standard classifier does not reflect this factorization. It compresses both content and speaker variation into the same dimensions.</p>
+<p>The solution is to design two independent embedding spaces \(\mathbf{z}_{phn} \in \mathbb{R}^{192}\) and \(\mathbf{z}_{spk} \in \mathbb{R}^{192}\) with the property that \(I(\mathbf{z}_{phn}; \mathbf{z}_{spk}) \approx 0\). Why 192 dimensions? This is a design tradeoff. Fewer dimensions (e.g., 64) would save parameters but would limit the model&rsquo;s capacity to separate 35 keyword classes and 1,251 speakers in hyperspherical space. More dimensions (e.g., 512) would consume too much of the 3M parameter budget on the final projection layers. At 192, each head uses roughly 0.2M parameters for the projection, leaving the bulk of the budget for the shared computation. We verified empirically that increasing to 256 yielded diminishing returns while decreasing to 128 hurt speaker EER by 2.3 percentage points.</p>
+<h2 id="architecture">Architecture<a hidden class="anchor" aria-hidden="true" href="#architecture">#</a></h2>
+<p>The model follows a single-backbone, dual-head design. Why not two completely separate models? A shared backbone forces both tasks to build on common acoustic representations: both phonetic content and speaker identity require the same low-level feature hierarchies (frequency modulation, formant structure, harmonic content). Two separate encoders would duplicate this computation and consume the entire parameter budget on overlapping work. And why not a single unified head? Because a single embedding space cannot satisfy both objectives simultaneously: speaker discrimination benefits from pooling over the full time-frequency plane, while keyword detection needs frame-level local patterns. The dual-head design extracts common features once, then branches into specialized pathways for each objective.</p>
+<h3 id="acoustic-front-end">Acoustic Front-End<a hidden class="anchor" aria-hidden="true" href="#acoustic-front-end">#</a></h3>
+<p>The raw waveform at 16 kHz is framed with a Hamming window (25 ms, 10 ms hop). For each frame we compute the Short-Time Fourier Transform:</p>
+$$X(t, k) = \sum_{n=0}^{N-1} x[t R + n] \cdot w[n] \cdot e^{-j \frac{2 \pi k n}{N}}$$<p>The power spectrum is mapped to 80 Mel-scale filterbanks:</p>
+$$m = 2595 \cdot \log_{10}\left(1 + \frac{f}{700}\right)$$$$\text{LFBE}(t, m) = \log \left( \sum_{k=0}^{N/2} |X(t, k)|^2 \cdot H_m(k) + \epsilon \right)$$<p>The output for a 2-second segment is \(\mathbf{X} \in \mathbb{R}^{1 \times 80 \times 200}\). Why 16 kHz sampling and 80 Mel bins? The keyword bandwidth (voice fundamental up to the first few formants) is well contained below 8 kHz, satisfying Nyquist at 16 kHz with margin. Eighty Mel bins provide roughly 12 bins per critical band in the 0-8 kHz range, sufficient to resolve formant structure for phoneme discrimination without the computational overhead of full-resolution spectrograms (e.g., 257 FFT bins). The 200-frame dimension follows from the 10 ms hop: 2,000 ms / 10 ms = 200 frames per utterance.</p>
+<h3 id="shared-encoder-bc-resnet-2-1">Shared Encoder: BC-ResNet-2 [1]<a hidden class="anchor" aria-hidden="true" href="#shared-encoder-bc-resnet-2-1">#</a></h3>
+<p>The Broadcasted Residual Network [1] splits computation into two parallel pathways within each residual block. Let \(\mathbf{x} \in \mathbb{R}^{C_{in} \times F \times T}\) be the input. The first pathway applies a 2D convolution to capture local frequency-time structure:</p>
+$$\mathbf{y}_{2D} = \text{ReLU}(\text{BatchNorm2D}(\text{Conv2D}(\mathbf{x}; \mathbf{W}_{2D})))$$<p>The second pathway compresses the frequency axis via average pooling and applies a 1D convolution for temporal context:</p>
+$$\mathbf{y}_{1D} = \text{ReLU}\left(\text{BatchNorm1D}\left(\text{Conv1D}\left(\frac{1}{F}\sum_{f=1}^F \mathbf{x}[:, f, :]; \mathbf{W}_{1D}\right)\right)\right)$$<p>The temporal feature map is broadcast back across the frequency dimension:</p>
+$$\mathbf{y}_{block} = \mathbf{y}_{2D} + \text{Broadcast}\left(\mathbf{y}_{1D}, \text{target\_shape}=(C_{out}, F', T)\right)$$<p>This separation reduces parameters because global temporal statistics (average energy over frequency) are computed cheaply by the 1D path while spatial-frequency detail is preserved by the 2D path. The shared encoder totals 33.8K parameters.</p>
+<p align="center">
+  <img src="/images/disent-kws/param_budget.png" alt="Parameter Budget Distribution" width="700"/>
+  <br/>
+  <em>Parameter budget across all model components. The Causal Conformer phonetic head dominates at 1.67M params, while the shared encoder runs on just 33.8K.</em>
+</p>
+<h3 id="phonetic-head-causal-conformer-2">Phonetic Head: Causal Conformer [2]<a hidden class="anchor" aria-hidden="true" href="#phonetic-head-causal-conformer-2">#</a></h3>
+<p>The phonetic head uses a Causal Conformer [2]. Why a Conformer rather than a plain CNN or a Transformer? Keyword discrimination requires resolving local phonetic detail (e.g., the plosive burst distinguishing &ldquo;bat&rdquo; from &ldquo;pat&rdquo;) over short time scales, and global temporal structure (e.g., the stress pattern distinguishing &ldquo;record&rdquo; noun from &ldquo;record&rdquo; verb) over longer spans. Convolutions capture local patterns efficiently but struggle with long-range dependencies. Self-attention captures long-range dependencies but dilutes local detail in its global receptive field. The Conformer combines both: depthwise convolutions process local structure at each time step, while self-attention layers propagate information across the entire sequence. The Macaron-style sandwich (feed-forward → conv → attention → feed-forward) ensures each operation acts on features already transformed by the other. Each Conformer block follows a Macaron-style structure:</p>
+$$\tilde{\mathbf{x}}_i = \mathbf{x}_{i-1} + \frac{1}{2} \text{FFN}(\mathbf{x}_{i-1})$$$$\mathbf{x}'_i = \tilde{\mathbf{x}}_i + \text{MHSA}(\tilde{\mathbf{x}}_i)$$$$\mathbf{x}''_i = \mathbf{x}'_i + \text{CausalConv1D}(\mathbf{x}'_i)$$$$\mathbf{x}_i = \text{LayerNorm}\left(\mathbf{x}''_i + \frac{1}{2} \text{FFN}(\mathbf{x}''_i)\right)$$<p>Causality is enforced via a masked attention matrix:</p>
+$$A_{i,j} = \frac{\mathbf{q}_i \mathbf{k}_j^T}{\sqrt{d_k}} + M_{i,j}, \quad
+M_{i,j} = \begin{cases} 0 & \text{if } j \le i \\ -\infty & \text{if } j > i \end{cases}$$<p>The output is the phonetic embedding \(\mathbf{z}_{phn} \in \mathbb{R}^{192}\). The phonetic head contains 1,673K parameters (92.6% of the model).</p>
+<h3 id="speaker-head-ecapa-tdnn-lite-3">Speaker Head: ECAPA-TDNN Lite [3]<a hidden class="anchor" aria-hidden="true" href="#speaker-head-ecapa-tdnn-lite-3">#</a></h3>
+<p>The speaker head is a lightweight ECAPA-TDNN [3] built on SpeechBrain [13]. Speaker identity is a global property of an utterance: it does not change frame to frame. The task requires pooling discriminative cues across the utterance while suppressing noise-dominated frames. A standard CNN with mean pooling treats every frame equally, which is suboptimal because speaker-discriminative segments (vowel nuclei, nasal formants) are sparse and unevenly distributed. ECAPA-TDNN solves this with two key mechanisms. The Squeeze-and-Excitation block computes channel attention:</p>
+$$\mathbf{s} = \sigma\left(\mathbf{W}_2 \cdot \text{ReLU}\left(\mathbf{W}_1 \cdot \left(\frac{1}{T}\sum_{t=1}^T \mathbf{h}_t\right)\right)\right)$$<p>The gated features pass through Attentive Statistics Pooling (ASP), which learns frame-level attention weights:</p>
+$$e_t = \mathbf{v}^T \tanh\left(\mathbf{W} \tilde{\mathbf{h}}_t + \mathbf{b}\right), \quad \alpha_t = \frac{e^{e_t}}{\sum_{\tau=1}^T e^{e_{\tau}}}$$<p>The attention-weighted statistics form the speaker embedding:</p>
+$$\boldsymbol{\mu} = \sum_{t=1}^T \alpha_t \tilde{\mathbf{h}}_t, \quad \boldsymbol{\sigma} = \sqrt{\sum_{t=1}^T \alpha_t \left(\tilde{\mathbf{h}}_t - \boldsymbol{\mu}\right)^2}$$$$\mathbf{z}_{spk} = \mathbf{W}_{proj} \cdot [\boldsymbol{\mu}; \boldsymbol{\sigma}] + \mathbf{b}_{proj}$$<p>ASP is more parameter-efficient than global pooling because speaker-discriminative information is not uniformly distributed across frames. The speaker head uses 88.8K parameters.</p>
+<h2 id="disentanglement">Disentanglement<a hidden class="anchor" aria-hidden="true" href="#disentanglement">#</a></h2>
+<p>The shared backbone produces features used by both heads. Without intervention, the two embedding spaces become correlated: the speaker head relies on phonetic cues, and the phonetic head encodes speaker-specific traits. We apply two complementary mechanisms to enforce separation.</p>
+<h3 id="gradient-reversal-layer-4">Gradient Reversal Layer [4]<a hidden class="anchor" aria-hidden="true" href="#gradient-reversal-layer-4">#</a></h3>
+<p>An auxiliary speaker classifier \(D_{spk}\) is attached to the phonetic embedding \(\mathbf{z}_{phn}\). Why GRL rather than a simpler decorrelation penalty (e.g., minimizing the Frobenius norm of the cross-covariance matrix between \(\mathbf{z}_{phn}\) and \(\mathbf{z}_{spk}\))? A covariance-based penalty can reduce linear correlation but does not force the embeddings to discard speaker information. The encoder could still encode speaker identity nonlinearly while maintaining zero linear correlation. GRL, by contrast, pits the encoder against a powerful discriminator in a minimax game: the discriminator tries to decode speaker identity from \(\mathbf{z}_{phn}\), and the encoder tries to make this impossible. This forces the encoder to remove whatever speaker information the discriminator can exploit, and the discriminator adaptively discovers new patterns to exploit. The GRL [4] sits between the phonetic head and the classifier. During forward propagation it passes data unchanged. During backpropagation it inverts gradients with scaling factor \(-\lambda\):</p>
+$$\text{Forward: } R_\lambda(\mathbf{x}) = \mathbf{x}, \quad
+\text{Backward: } \frac{d R_\lambda(\mathbf{x})}{d\mathbf{x}} = -\lambda \mathbf{I}$$<p>The overall objective is:</p>
+$$E(G_{back}, G_{phn}, D_{spk}) = L_{kw}(G_{back}, G_{phn}) - \lambda L_{adv}(G_{back}, D_{spk})$$<p>As \(D_{spk}\) improves at speaker classification, the inverted gradient pushes the encoder to produce \(\mathbf{z}_{phn}\) that is less informative for speaker identity. The equilibrium is reached when \(\mathbf{z}_{phn}\) contains no linearly decodable speaker information.</p>
+<h3 id="club-mutual-information-minimization-5">CLUB Mutual Information Minimization [5]<a hidden class="anchor" aria-hidden="true" href="#club-mutual-information-minimization-5">#</a></h3>
+<p>GRL only removes information that the auxiliary classifier can linearly decode. Residual nonlinear dependencies can persist. The mutual information between the two embeddings is:</p>
+$$I(\mathbf{Z}_{phn}; \mathbf{Z}_{spk}) = \mathbb{E}_{P(\mathbf{Z}_{phn}, \mathbf{Z}_{spk})} \left[ \log \frac{P(\mathbf{Z}_{phn} | \mathbf{Z}_{spk})}{P(\mathbf{Z}_{phn})} \right]$$<p>Since the true conditional is intractable, we use a variational estimator \(q_\theta\). The Contrastive Log-ratio Upper Bound (CLUB) [5] provides a tractable upper bound:</p>
+$$I_{CLUB}(\mathbf{Z}_{phn}; \mathbf{Z}_{spk}) = \frac{1}{B} \sum_{i=1}^B \left[ \log q_\theta(\mathbf{z}_{phn, i} | \mathbf{z}_{spk, i}) - \frac{1}{B} \sum_{j=1}^B \log q_\theta(\mathbf{z}_{phn, j} | \mathbf{z}_{spk, i}) \right]$$<p>The optimization alternates between updating \(q_\theta\) to fit the conditional, and minimizing the bound with respect to encoder parameters:</p>
+$$\max_\theta \frac{1}{B} \sum_{i=1}^B \log q_\theta(\mathbf{z}_{phn, i} | \mathbf{z}_{spk, i}), \quad
+\min_{\Theta} I_{CLUB}(\mathbf{Z}_{phn}; \mathbf{Z}_{spk})$$<p>The combination of GRL and CLUB removes both linearly decodable and nonlinearly dependent speaker information from the phonetic pathway.</p>
+<h2 id="training-pipeline">Training Pipeline<a hidden class="anchor" aria-hidden="true" href="#training-pipeline">#</a></h2>
+<p>Training proceeds in four phases, each with distinct optimization objectives. Why four phases instead of joint end-to-end training from scratch? The objectives conflict. AAM-Softmax classification requires the model to exploit all available information (content + speaker) to minimize cross-entropy. Disentanglement asks the opposite: discard speaker information from the phonetic pathway and keyword information from the speaker pathway. GE2E speaker refinement requires utterance-level comparison, which is incompatible with the frame-level objectives of the phonetic head. Joint optimization from scratch creates destructive gradient interference: the disentanglement loss pushes gradients that oppose the classification loss, and neither objective converges. By decomposing into phases, each set of weights is initialized to a reasonable basin before the next objective is introduced.</p>
+<h3 id="phase-1-aam-softmax-pre-training-6">Phase 1: AAM-Softmax Pre-Training [6]<a hidden class="anchor" aria-hidden="true" href="#phase-1-aam-softmax-pre-training-6">#</a></h3>
+<p>The backbone and heads are pre-trained separately on keyword classification (Google Speech Commands v2 [10], 35 classes, 105K utterances) and speaker classification (VoxCeleb1 [11], 1,251 speakers, 153K utterances). Both use Additive Angular Margin Softmax [6]:</p>
+$$L_{AAM} = -\frac{1}{B} \sum_{i=1}^B \log \frac{e^{s \cdot \cos(\theta_{y_i} + m)}}{e^{s \cdot \cos(\theta_{y_i} + m)} + \sum_{j \neq y_i} e^{s \cdot \cos(\theta_j)}}$$<p>Why AAM-Softmax over plain softmax? Standard softmax produces embeddings that are separable by class but not necessarily compact within class. The decision boundaries are linear hyperplanes in the embedding space, and there is no mechanism to reduce intra-class variance. AAM-Softmax inserts a multiplicative margin \(m\) into the angle between the embedding vector \(\mathbf{x}_i\) and the weight vector \(\mathbf{W}_{y_i}\) of its target class. The loss function requires \(\cos(\theta_{y_i} + m) > \cos(\theta_j)\) for all \(j \neq y_i\), which tightens the angular decision boundary around each class. Geometrically, each class occupies a conical region of width \(m\) on the hypersphere. For 35 keyword classes, this is essential: words like &ldquo;yes&rdquo; and &ldquo;yep&rdquo; or &ldquo;two&rdquo; and &ldquo;too&rdquo; are acoustically close, and the margin prevents them from overlapping in embedding space. At this stage there is no disentanglement.</p>
+<h3 id="phase-2-joint-training-with-disentanglement">Phase 2: Joint Training with Disentanglement<a hidden class="anchor" aria-hidden="true" href="#phase-2-joint-training-with-disentanglement">#</a></h3>
+<p>GRL, CLUB, and the dual-gate scorer are enabled. Two additional loss terms are introduced. The triplet loss separates positive and negative pairs:</p>
+$$L_{triplet} = \max\left(0, \|\mathbf{z}_a - \mathbf{z}_p\|_2^2 - \|\mathbf{z}_a - \mathbf{z}_n\|_2^2 + \alpha\right)$$<p>Why both triplet and rejection losses? The triplet loss ensures that a random negative utterance stays further from the anchor than the positive utterance by margin \(\alpha\). This creates relative ordering in embedding space. However, it does not enforce an absolute floor on confuser similarity. A confuser could be closer to the anchor than the positive by less than \(\alpha\) and still incur zero triplet loss. The rejection loss fixes this by requiring an absolute minimum distance \(\gamma\) for any confuser utterance. The two losses operate at different levels: triplet creates relative separation, rejection imposes absolute boundaries.</p>
+$$L_{reject} = \max\left(0, \gamma - \|\mathbf{z}_a - \mathbf{z}_{confuser}\|_2^2\right)$$<h3 id="phase-3a-ge2e-speaker-refinement-7">Phase 3a: GE2E Speaker Refinement [7]<a hidden class="anchor" aria-hidden="true" href="#phase-3a-ge2e-speaker-refinement-7">#</a></h3>
+<p>The speaker head is fine-tuned using Generalized End-to-End loss [7]. Why GE2E instead of the triplet loss already used in Phase 2? Triplet loss compares one positive and one negative per anchor, which requires careful mining to avoid easy negatives that contribute zero loss. GE2E computes similarities between every utterance and every speaker centroid in the batch, producing \(N \times M\) comparisons per step. This is more sample-efficient because every utterance in the batch contributes to the gradient through the softmax over all centroids. The inference-time operation (compare against a prototype centroid) also matches the training objective directly: GE2E trains embeddings to maximize similarity to their own centroid, which is exactly what the scorer does at runtime. For a batch of \(N\) speakers with \(M\) utterances each, let \(\mathbf{e}_{ji}\) be the embedding for utterance \(i\) of speaker \(j\). The centroid excluding utterance \(i\) is:</p>
+$$\mathbf{c}_{j}^{(-i)} = \frac{1}{M-1} \sum_{m \neq i} \mathbf{e}_{jm}$$<p>The similarity matrix \(S_{ji,k} = w \cdot \cos(\mathbf{e}_{ji}, \mathbf{c}_k) + b\) is optimized via softmax:</p>
+$$L_{GE2E} = -\frac{1}{N \cdot M} \sum_{j=1}^N \sum_{i=1}^M \log \frac{e^{S_{ji,j}}}{\sum_{k=1}^N e^{S_{ji,k}}}$$<h3 id="phase-3b-hard-negative-ge2e">Phase 3b: Hard-Negative GE2E<a hidden class="anchor" aria-hidden="true" href="#phase-3b-hard-negative-ge2e">#</a></h3>
+<p>GE2E is extended with hard-negative mining from LibriPhrase [12]. For each anchor, a phonetically similar confuser from a different speaker is retrieved and penalized:</p>
+$$L_{hard} = L_{GE2E} + \beta \cdot \max\left(0, \cos(\mathbf{e}_{anchor}, \mathbf{e}_{hardneg}) - \delta\right)$$<p>This phase targets the hardest failure mode: a confuser whose voice and chosen keyword are both similar to the target. In our tests it reduced joint EER by approximately 2 percentage points.</p>
+<p align="center">
+  <img src="/images/disent-kws/training_phases.png" alt="Four-Phase Training Pipeline" width="800"/>
+  <br/>
+  <em>The complete training pipeline: Phase 1 pre-trains individually, Phase 2 introduces disentanglement + joint objectives, Phase 3a refines speaker head with GE2E, Phase 3b adds hard-negative mining.</em>
+</p>
+<h2 id="scoring-and-decision">Scoring and Decision<a hidden class="anchor" aria-hidden="true" href="#scoring-and-decision">#</a></h2>
+<p>At enrollment, prototype embeddings \(\mathbf{p}_{kw}\) and \(\mathbf{p}_{spk}\) are computed by averaging \(\mathbf{z}_{phn}\) and \(\mathbf{z}_{spk}\) across enrollment utterances, following the prototypical network formulation [8]. At detection time, cosine similarities are computed:</p>
+$$\text{Sim}(\mathbf{z}_1, \mathbf{z}_2) = \frac{\mathbf{z}_1 \cdot \mathbf{z}_2^T}{\|\mathbf{z}_1\|_2 \|\mathbf{z}_2\|_2}$$$$\text{Score} = w_{kw} \cdot \text{Sim}(\mathbf{z}_{phn}, \mathbf{p}_{kw}) + w_{spk} \cdot \text{Sim}(\mathbf{z}_{spk}, \mathbf{p}_{spk})$$<p>The weights \(w_{kw}\) and \(w_{spk}\) are obtained by grid search over \(10 \times 10\) combinations spanning \([0, 1]\) at increments of 0.1. This granularity captures the tradeoff landscape: coarser (\(5 \times 5\)) misses the optimal operating point, finer (\(20 \times 20\)) offers no measurable improvement while costing 4x computation. The optimum is \(w_{kw}=0.30, w_{spk}=0.65\). The sum is 0.95 rather than 1.0 because the keyword-only EER (4.69%) is much lower than the speaker-only EER (17.86%). The scorer compensates by weighting the less reliable speaker head more heavily.</p>
+<p>For streaming, Exponential Moving Average smoothing is applied:</p>
+$$\bar{S}_t = \alpha_{ema} \cdot \bar{S}_{t-1} + (1 - \alpha_{ema}) \cdot \text{Score}_t$$<p>with \(\alpha_{ema}=0.7\). The EMA dampens transient false accepts from noise bursts or non-speech artifacts. Why \(\alpha=0.7\) rather than a higher value like 0.95? Speaker turns happen on timescales of hundreds of milliseconds. A score drop from a genuine speaker to a confuser produces a sharp transition in Score\(_t\). With \(\alpha=0.7\), the smoothed score drops to 30% of its original value within 2 frames (20 ms), preserving responsiveness to speaker changes. Higher values (e.g., 0.95) would create a long tail that masks true rejections for up to 20 frames. Lower values (e.g., 0.3) fail to suppress the transient noise. The value 0.7 was validated by sweeping \(\alpha \in [0.5, 0.95]\) on a held-out validation set and selecting the minimum joint EER. The final decision is:</p>
+$$D = \begin{cases} 1 & \text{if } \bar{S}_t \ge \tau_{EER} \\ 0 & \text{if } \bar{S}_t < \tau_{EER} \end{cases}$$<p>where \(\tau_{EER} = 0.2222\) is the threshold calibrated via DET curve analysis.</p>
+<h2 id="results">Results<a hidden class="anchor" aria-hidden="true" href="#results">#</a></h2>
+<table>
+  <thead>
+      <tr>
+          <th>Metric</th>
+          <th>Value</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>Parameters</strong></td>
+          <td>1.806 M</td>
+      </tr>
+      <tr>
+          <td><strong>ONNX Size</strong></td>
+          <td>0.60 MB (INT8)</td>
+      </tr>
+      <tr>
+          <td><strong>CPU Latency</strong></td>
+          <td>26.43 ms (p95: 28.29 ms)</td>
+      </tr>
+      <tr>
+          <td><strong>Real-Time Factor</strong></td>
+          <td>0.0132</td>
+      </tr>
+      <tr>
+          <td><strong>Keyword EER</strong></td>
+          <td>4.69%</td>
+      </tr>
+      <tr>
+          <td><strong>Speaker EER</strong></td>
+          <td>17.86%</td>
+      </tr>
+      <tr>
+          <td><strong>Joint EER</strong></td>
+          <td>23.47%</td>
+      </tr>
+      <tr>
+          <td><strong>Joint AUC</strong></td>
+          <td>0.8425</td>
+      </tr>
+  </tbody>
+</table>
+<p>The keyword EER of 4.69% is competitive with larger models that lack a disentanglement constraint. The model processes a 2-second window in 26 ms (xRT = 0.0132), well under the 0.20 target.</p>
+<p>The speaker EER (17.86%) is higher than dedicated speaker verification models (under 5% on VoxCeleb1). This is expected given the parameter budget (88.8K parameters versus millions in a full ECAPA-TDNN) and the competing objectives of the shared backbone.</p>
+<p>The joint EER (23.47%) is the relevant operating point. A false accept requires both keyword and speaker to match incorrectly in the same trial. The joint AUC of 0.8425 indicates strong separation between positive and negative trials across thresholds.</p>
+<p align="center">
+  <img src="/images/disent-kws/det_curve.png" alt="Joint DET Curve" width="600"/>
+  <br/>
+  <em>Detection Error Trade-off curve for joint keyword + speaker verification. The EER operating point at \(\tau = 0.2222\) balances false accepts and false rejects.</em>
+</p>
+<h2 id="ablation-study">Ablation Study<a hidden class="anchor" aria-hidden="true" href="#ablation-study">#</a></h2>
+<table>
+  <thead>
+      <tr>
+          <th>Configuration</th>
+          <th>Keyword EER (%)</th>
+          <th>Speaker EER (%)</th>
+          <th>Parameters</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Full Model (baseline)</td>
+          <td>4.69</td>
+          <td>17.33</td>
+          <td>1.806 M</td>
+      </tr>
+      <tr>
+          <td>No FiLM [14]</td>
+          <td>4.69</td>
+          <td>17.33</td>
+          <td>1.683 M</td>
+      </tr>
+      <tr>
+          <td>No Speaker Head</td>
+          <td>4.69</td>
+          <td>N/A</td>
+          <td>1.806 M</td>
+      </tr>
+      <tr>
+          <td>No Temporal Block [9]</td>
+          <td>11.22</td>
+          <td>25.48</td>
+          <td>1.796 M</td>
+      </tr>
+      <tr>
+          <td>Equal Scorer Weights</td>
+          <td>4.69</td>
+          <td>17.33</td>
+          <td>1.806 M</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Temporal block.</strong> Removing the Mamba SSM [9] or Dilated Conv1D module increases keyword EER by 2.4x (4.69% to 11.22%) and speaker EER by 1.5x (17.33% to 25.48%). Temporal context modeling is critical for distinguishing phonetically similar words like &ldquo;sit&rdquo; and &ldquo;sat&rdquo; that differ primarily in their temporal envelope. Without temporal integration, the model reduces to a bag-of-frames classifier that averages over time and loses the ordering information that distinguishes sequential phoneme patterns.</p>
+<p><strong>Speaker head removal.</strong> Ignoring the speaker head output during scoring leaves keyword EER unchanged (4.69% in both conditions). This is expected: the speaker head receives its own loss signal (speaker classification) that does not backpropagate into the keyword pathway beyond the shared backbone. The backbone is already well-optimized for keyword detection from Phase 1 pre-training, and the speaker head&rsquo;s gradient contributions during Phase 2 are comparatively small (88.8K params vs. 1.67M params in the phonetic head). The parameter count stays at 1.806M because all weights are still present; only the scoring pathway omits the speaker branch.</p>
+<p><strong>FiLM conditioning.</strong> The FiLM layer [14] saved 123K parameters when removed, with zero change in either EER. The conditioning likely helps in few-shot or noisy enrollment scenarios, but the GSC plus VoxCeleb test set did not stress this.</p>
+<p><strong>Scorer weights.</strong> Calibrated weights (0.30/0.65) and equal weights (0.50/0.50) produced identical EER on the standard test set. Calibration matters more at low-FAR operating points, which standard benchmarks do not emphasize.</p>
+<p align="center">
+  <img src="/images/disent-kws/ablation_chart.png" alt="Ablation Study Results" width="650"/>
+  <br/>
+  <em>Component-wise ablation impact on Keyword and Speaker EER. The temporal block is the single most critical component. Removing it degrades keyword EER by 2.4x.</em>
+</p>
+<h2 id="limitations-and-future-directions">Limitations and Future Directions<a hidden class="anchor" aria-hidden="true" href="#limitations-and-future-directions">#</a></h2>
+<p><strong>Speaker head capacity.</strong> 88.8K parameters is too tight for robust speaker verification. Increasing the budget to 5M parameters (still qualifying as a tiny model) or using a backbone that shares computation more efficiently with the speaker head would likely reduce speaker EER.</p>
+<p><strong>GE2E integration.</strong> Speaker head refinement via GE2E was restricted to Phases 3a and 3b. Alternating between classification and GE2E objectives throughout Phase 2 would give the speaker head more training exposure before disentanglement constraints are applied.</p>
+<p><strong>GRL and CLUB interaction.</strong> GRL removes linearly decodable speaker information. CLUB targets residual nonlinear dependencies. In practice, GRL removed most speaker information first, leaving little for CLUB to act on. The reason is that GRL&rsquo;s adversarial training provides a stronger, more direct gradient signal: the discriminator explicitly classifies speaker identity, and the gradient reversal directly pushes the encoder away from speaker-predictive features. CLUB&rsquo;s gradient, by contrast, is an upper-bound estimate of mutual information that is less tightly coupled to the classification objective. A more principled approach would monitor estimated mutual information and activate CLUB only when it rises above a threshold, or schedule the GLR weight \(\lambda\) to be small initially and ramp up gradually so both mechanisms contribute.</p>
+<p><strong>Rejection margin sensitivity.</strong> The rejection margin \(\gamma\) was fixed across all keywords. The optimal margin depends on intra-class variance of the keyword embeddings: tight clusters need smaller margins, loose clusters need larger ones. Adaptive margin selection would be more robust.</p>
+<p><strong>Far-field evaluation.</strong> All benchmarks used clean, single-channel datasets. The SNR robustness curve (evaluated with MUSAN noise [15] from -5 dB to 30 dB) provides some confidence, but real-world far-field conditions with room acoustics and microphone arrays introduce challenges that synthetic noise augmentation does not fully replicate.</p>
+<p align="center">
+  <img src="/images/disent-kws/snr_robustness.png" alt="SNR Robustness Evaluation" width="600"/>
+  <br/>
+  <em>Performance across -5 dB to 30 dB SNR using MUSAN noise [15] (babble, music, environmental). The model maintains consistent accuracy across the full SNR range.</em>
+</p>
+<h2 id="related-work">Related Work<a hidden class="anchor" aria-hidden="true" href="#related-work">#</a></h2>
+<p>Two broad approaches exist for custom keyword spotting with speaker verification. The big-model approach uses large pre-trained models (Wav2Vec 2.0, HuBERT, Whisper) with 100M+ parameters and GPU inference, suitable for cloud-connected systems. The tiny-model approach, which this work follows, builds from scratch under aggressive parameter constraints for edge deployment on CPU-only hardware with sub-30 ms latency.</p>
+<p>This work sits at the intersection of disentangled representation learning (GRL [4], CLUB [5]), efficient speech architectures (BC-ResNet [1], Causal Conformer [2]), and few-shot speaker adaptation (GE2E [7], prototypical scoring [8]). The contribution is in the composition: a 1.8M parameter model with explicit content-identity separation that improves joint keyword-plus-speaker verification over entangled baselines.</p>
+<h2 id="code-and-reproducibility">Code and Reproducibility<a hidden class="anchor" aria-hidden="true" href="#code-and-reproducibility">#</a></h2>
+<p>The training pipeline, demo scripts, and ONNX export are open source.</p>
+<ul>
+<li><strong>Code:</strong> <a href="https://github.com/tripathiji1312/DISENT_KWS">github.com/tripathiji1312/DISENT_KWS</a></li>
+<li><strong>Model weights:</strong> <a href="https://huggingface.co/tripathiji1312/DISENT-KWS">Hugging Face</a> (PyTorch + ONNX)</li>
+<li><strong>Datasets:</strong> Google Speech Commands v2 [10], VoxCeleb1 [11], LibriPhrase [12], MUSAN [15]</li>
+</ul>
+<p>To reproduce the benchmark:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>uv sync --all-extras
+</span></span><span style="display:flex;"><span>make test
+</span></span><span style="display:flex;"><span>python src/demo.py record --model model_final.pt --out enrollment.pt
+</span></span><span style="display:flex;"><span>python src/demo.py detect --enrollment enrollment.pt --auto-threshold
+</span></span></code></pre></div><h2 id="references">References<a hidden class="anchor" aria-hidden="true" href="#references">#</a></h2>
+<p>[1] Kim, B. et al. (2021). &ldquo;BC-ResNet: Broadcasted Residual Learning for Lightweight Noise-Robust Keyword Spotting.&rdquo; <em>Proc. Interspeech</em>.</p>
+<p>[2] Gulati, A. et al. (2020). &ldquo;Conformer: Convolution-augmented Transformer for Speech Recognition.&rdquo; <em>Proc. Interspeech</em>.</p>
+<p>[3] Desplanques, B. et al. (2020). &ldquo;ECAPA-TDNN: Emphasized Channel Attention, Propagation and Aggregation in TDNN Based Speaker Verification.&rdquo; <em>Proc. Interspeech</em>.</p>
+<p>[4] Ganin, Y. &amp; Lempitsky, V. (2015). &ldquo;Unsupervised Domain Adaptation by Backpropagation.&rdquo; <em>Proc. ICML</em>.</p>
+<p>[5] Cheng, P. et al. (2020). &ldquo;CLUB: A Contrastive Log-ratio Upper Bound of Mutual Information.&rdquo; <em>Proc. ICML</em>.</p>
+<p>[6] Deng, J. et al. (2019). &ldquo;ArcFace: Additive Angular Margin Loss for Deep Face Recognition.&rdquo; <em>Proc. CVPR</em>.</p>
+<p>[7] Wan, L. et al. (2018). &ldquo;Generalized End-to-End Loss for Speaker Verification.&rdquo; <em>Proc. ICASSP</em>.</p>
+<p>[8] Snell, J. et al. (2017). &ldquo;Prototypical Networks for Few-shot Learning.&rdquo; <em>Proc. NeurIPS</em>.</p>
+<p>[9] Gu, A. &amp; Dao, T. (2023). &ldquo;Mamba: Linear-Time Sequence Modeling with Selective State Spaces.&rdquo; <em>arXiv preprint arXiv:2312.00752</em>.</p>
+<p>[10] Warden, P. (2018). &ldquo;Speech Commands: A Dataset for Limited-Vocabulary Speech Recognition.&rdquo; <em>arXiv preprint arXiv:1804.03209</em>.</p>
+<p>[11] Nagrani, A. et al. (2017). &ldquo;VoxCeleb: A Large-Scale Speaker Identification Dataset.&rdquo; <em>Proc. Interspeech</em>.</p>
+<p>[12] LibriPhrase dataset. Available at: <a href="https://huggingface.co/datasets/charsiu/libriphrase">https://huggingface.co/datasets/charsiu/libriphrase</a></p>
+<p>[13] Ravanelli, M. et al. (2021). &ldquo;SpeechBrain: A Multi-Task Speech Toolkit.&rdquo; <em>arXiv preprint arXiv:2106.04624</em>.</p>
+<p>[14] Perez, E. et al. (2018). &ldquo;FiLM: Visual Reasoning with a General Conditioning Layer.&rdquo; <em>Proc. AAAI</em>.</p>
+<p>[15] Snyder, D. et al. (2015). &ldquo;MUSAN: A Music, Speech, and Noise Corpus.&rdquo; <em>arXiv preprint</em>.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="http://localhost:1313/tags/keyword-spotting/">Keyword Spotting</a></li>
+      <li><a href="http://localhost:1313/tags/speech-disentanglement/">Speech Disentanglement</a></li>
+      <li><a href="http://localhost:1313/tags/speaker-verification/">Speaker Verification</a></li>
+      <li><a href="http://localhost:1313/tags/edge-ai/">Edge AI</a></li>
+      <li><a href="http://localhost:1313/tags/tinyml/">TinyML</a></li>
+      <li><a href="http://localhost:1313/tags/deep-learning/">Deep-Learning</a></li>
+      <li><a href="http://localhost:1313/tags/bc-resnet/">BC-ResNet</a></li>
+      <li><a href="http://localhost:1313/tags/conformer/">Conformer</a></li>
+      <li><a href="http://localhost:1313/tags/ecapa-tdnn/">ECAPA-TDNN</a></li>
+      <li><a href="http://localhost:1313/tags/grl/">GRL</a></li>
+      <li><a href="http://localhost:1313/tags/club/">CLUB</a></li>
+      <li><a href="http://localhost:1313/tags/wake-word-detection/">Wake Word Detection</a></li>
+      <li><a href="http://localhost:1313/tags/on-device-ml/">On-Device ML</a></li>
+      <li><a href="http://localhost:1313/tags/few-shot-learning/">Few-Shot Learning</a></li>
+      <li><a href="http://localhost:1313/tags/voice-biometrics/">Voice Biometrics</a></li>
+      <li><a href="http://localhost:1313/tags/speech-recognition/">Speech Recognition</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="next" href="http://localhost:1313/posts/strides-pytorch/">
+    <span class="title">Next »</span>
+    <span>Building of pytorch internals</span>
+  </a>
+</nav>
+
+
+<ul class="share-buttons">
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Identity Is Not the Keyword on x"
+            href="https://x.com/intent/tweet/?text=Identity%20Is%20Not%20the%20Keyword&amp;url=http%3a%2f%2flocalhost%3a1313%2fposts%2fdisent-kws%2f&amp;hashtags=keywordspotting%2cspeechdisentanglement%2cspeakerverification%2cedgeAI%2ctinyML%2cdeep-learning%2cBC-ResNet%2cConformer%2cECAPA-TDNN%2cGRL%2cCLUB%2cwakeworddetection%2con-deviceML%2cfew-shotlearning%2cvoicebiometrics%2cspeechrecognition">
+            <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M512 62.554 L 512 449.446 C 512 483.97 483.97 512 449.446 512 L 62.554 512 C 28.03 512 0 483.97 0 449.446 L 0 62.554 C 0 28.03 28.029 0 62.554 0 L 449.446 0 C 483.971 0 512 28.03 512 62.554 Z M 269.951 190.75 L 182.567 75.216 L 56 75.216 L 207.216 272.95 L 63.9 436.783 L 125.266 436.783 L 235.9 310.383 L 332.567 436.783 L 456 436.783 L 298.367 228.367 L 432.367 75.216 L 371.033 75.216 Z M 127.633 110 L 164.101 110 L 383.481 400.065 L 349.5 400.065 Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Identity Is Not the Keyword on linkedin"
+            href="https://www.linkedin.com/shareArticle?mini=true&amp;url=http%3a%2f%2flocalhost%3a1313%2fposts%2fdisent-kws%2f&amp;title=Identity%20Is%20Not%20the%20Keyword&amp;summary=Identity%20Is%20Not%20the%20Keyword&amp;source=http%3a%2f%2flocalhost%3a1313%2fposts%2fdisent-kws%2f">
+            <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-386.892,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Zm-288.985,423.278l0,-225.717l-75.04,0l0,225.717l75.04,0Zm270.539,0l0,-129.439c0,-69.333 -37.018,-101.586 -86.381,-101.586c-39.804,0 -57.634,21.891 -67.617,37.266l0,-31.958l-75.021,0c0.995,21.181 0,225.717 0,225.717l75.02,0l0,-126.056c0,-6.748 0.486,-13.492 2.474,-18.315c5.414,-13.475 17.767,-27.434 38.494,-27.434c27.135,0 38.007,20.707 38.007,51.037l0,120.768l75.024,0Zm-307.552,-334.556c-25.674,0 -42.448,16.879 -42.448,39.002c0,21.658 16.264,39.002 41.455,39.002l0.484,0c26.165,0 42.452,-17.344 42.452,-39.002c-0.485,-22.092 -16.241,-38.954 -41.943,-39.002Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Identity Is Not the Keyword on reddit"
+            href="https://reddit.com/submit?url=http%3a%2f%2flocalhost%3a1313%2fposts%2fdisent-kws%2f&title=Identity%20Is%20Not%20the%20Keyword">
+            <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-386.892,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Zm-3.446,265.638c0,-22.964 -18.616,-41.58 -41.58,-41.58c-11.211,0 -21.361,4.457 -28.841,11.666c-28.424,-20.508 -67.586,-33.757 -111.204,-35.278l18.941,-89.121l61.884,13.157c0.756,15.734 13.642,28.29 29.56,28.29c16.407,0 29.706,-13.299 29.706,-29.701c0,-16.403 -13.299,-29.702 -29.706,-29.702c-11.666,0 -21.657,6.792 -26.515,16.578l-69.105,-14.69c-1.922,-0.418 -3.939,-0.042 -5.585,1.036c-1.658,1.073 -2.811,2.761 -3.224,4.686l-21.152,99.438c-44.258,1.228 -84.046,14.494 -112.837,35.232c-7.468,-7.164 -17.589,-11.591 -28.757,-11.591c-22.965,0 -41.585,18.616 -41.585,41.58c0,16.896 10.095,31.41 24.568,37.918c-0.639,4.135 -0.99,8.328 -0.99,12.576c0,63.977 74.469,115.836 166.33,115.836c91.861,0 166.334,-51.859 166.334,-115.836c0,-4.218 -0.347,-8.387 -0.977,-12.493c14.564,-6.47 24.735,-21.034 24.735,-38.001Zm-119.474,108.193c-20.27,20.241 -59.115,21.816 -70.534,21.816c-11.428,0 -50.277,-1.575 -70.522,-21.82c-3.007,-3.008 -3.007,-7.882 0,-10.889c3.003,-2.999 7.882,-3.003 10.885,0c12.777,12.781 40.11,17.317 59.637,17.317c19.522,0 46.86,-4.536 59.657,-17.321c3.016,-2.999 7.886,-2.995 10.885,0.008c3.008,3.011 3.003,7.882 -0.008,10.889Zm-5.23,-48.781c-16.373,0 -29.701,-13.324 -29.701,-29.698c0,-16.381 13.328,-29.714 29.701,-29.714c16.378,0 29.706,13.333 29.706,29.714c0,16.374 -13.328,29.698 -29.706,29.698Zm-160.386,-29.702c0,-16.381 13.328,-29.71 29.714,-29.71c16.369,0 29.689,13.329 29.689,29.71c0,16.373 -13.32,29.693 -29.689,29.693c-16.386,0 -29.714,-13.32 -29.714,-29.693Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Identity Is Not the Keyword on facebook"
+            href="https://facebook.com/sharer/sharer.php?u=http%3a%2f%2flocalhost%3a1313%2fposts%2fdisent-kws%2f">
+            <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-106.468,0l0,-192.915l66.6,0l12.672,-82.621l-79.272,0l0,-53.617c0,-22.603 11.073,-44.636 46.58,-44.636l36.042,0l0,-70.34c0,0 -32.71,-5.582 -63.982,-5.582c-65.288,0 -107.96,39.569 -107.96,111.204l0,62.971l-72.573,0l0,82.621l72.573,0l0,192.915l-191.104,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Identity Is Not the Keyword on whatsapp"
+            href="https://api.whatsapp.com/send?text=Identity%20Is%20Not%20the%20Keyword%20-%20http%3a%2f%2flocalhost%3a1313%2fposts%2fdisent-kws%2f">
+            <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-386.892,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Zm-58.673,127.703c-33.842,-33.881 -78.847,-52.548 -126.798,-52.568c-98.799,0 -179.21,80.405 -179.249,179.234c-0.013,31.593 8.241,62.428 23.927,89.612l-25.429,92.884l95.021,-24.925c26.181,14.28 55.659,21.807 85.658,21.816l0.074,0c98.789,0 179.206,-80.413 179.247,-179.243c0.018,-47.895 -18.61,-92.93 -52.451,-126.81Zm-126.797,275.782l-0.06,0c-26.734,-0.01 -52.954,-7.193 -75.828,-20.767l-5.441,-3.229l-56.386,14.792l15.05,-54.977l-3.542,-5.637c-14.913,-23.72 -22.791,-51.136 -22.779,-79.287c0.033,-82.142 66.867,-148.971 149.046,-148.971c39.793,0.014 77.199,15.531 105.329,43.692c28.128,28.16 43.609,65.592 43.594,105.4c-0.034,82.149 -66.866,148.983 -148.983,148.984Zm81.721,-111.581c-4.479,-2.242 -26.499,-13.075 -30.604,-14.571c-4.105,-1.495 -7.091,-2.241 -10.077,2.241c-2.986,4.483 -11.569,14.572 -14.182,17.562c-2.612,2.988 -5.225,3.364 -9.703,1.12c-4.479,-2.241 -18.91,-6.97 -36.017,-22.23c-13.314,-11.876 -22.304,-26.542 -24.916,-31.026c-2.612,-4.484 -0.279,-6.908 1.963,-9.14c2.016,-2.007 4.48,-5.232 6.719,-7.847c2.24,-2.615 2.986,-4.484 4.479,-7.472c1.493,-2.99 0.747,-5.604 -0.374,-7.846c-1.119,-2.241 -10.077,-24.288 -13.809,-33.256c-3.635,-8.733 -7.327,-7.55 -10.077,-7.688c-2.609,-0.13 -5.598,-0.158 -8.583,-0.158c-2.986,0 -7.839,1.121 -11.944,5.604c-4.105,4.484 -15.675,15.32 -15.675,37.364c0,22.046 16.048,43.342 18.287,46.332c2.24,2.99 31.582,48.227 76.511,67.627c10.685,4.615 19.028,7.371 25.533,9.434c10.728,3.41 20.492,2.929 28.209,1.775c8.605,-1.285 26.499,-10.833 30.231,-21.295c3.732,-10.464 3.732,-19.431 2.612,-21.298c-1.119,-1.869 -4.105,-2.99 -8.583,-5.232Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Identity Is Not the Keyword on telegram"
+            href="https://telegram.me/share/url?text=Identity%20Is%20Not%20the%20Keyword&amp;url=http%3a%2f%2flocalhost%3a1313%2fposts%2fdisent-kws%2f">
+            <svg version="1.1" xml:space="preserve" viewBox="2 2 28 28" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M26.49,29.86H5.5a3.37,3.37,0,0,1-2.47-1,3.35,3.35,0,0,1-1-2.47V5.48A3.36,3.36,0,0,1,3,3,3.37,3.37,0,0,1,5.5,2h21A3.38,3.38,0,0,1,29,3a3.36,3.36,0,0,1,1,2.46V26.37a3.35,3.35,0,0,1-1,2.47A3.38,3.38,0,0,1,26.49,29.86Zm-5.38-6.71a.79.79,0,0,0,.85-.66L24.73,9.24a.55.55,0,0,0-.18-.46.62.62,0,0,0-.41-.17q-.08,0-16.53,6.11a.59.59,0,0,0-.41.59.57.57,0,0,0,.43.52l4,1.24,1.61,4.83a.62.62,0,0,0,.63.43.56.56,0,0,0,.4-.17L16.54,20l4.09,3A.9.9,0,0,0,21.11,23.15ZM13.8,20.71l-1.21-4q8.72-5.55,8.78-5.55c.15,0,.23,0,.23.16a.18.18,0,0,1,0,.06s-2.51,2.3-7.52,6.8Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Identity Is Not the Keyword on ycombinator"
+            href="https://news.ycombinator.com/submitlink?t=Identity%20Is%20Not%20the%20Keyword&u=http%3a%2f%2flocalhost%3a1313%2fposts%2fdisent-kws%2f">
+            <svg version="1.1" xml:space="preserve" width="30px" height="30px" viewBox="0 0 512 512" fill="currentColor"
+                xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape">
+                <path
+                    d="M449.446 0C483.971 0 512 28.03 512 62.554L512 449.446C512 483.97 483.97 512 449.446 512L62.554 512C28.03 512 0 483.97 0 449.446L0 62.554C0 28.03 28.029 0 62.554 0L449.446 0ZM183.8767 87.9921H121.8427L230.6673 292.4508V424.0079H281.3328V292.4508L390.1575 87.9921H328.1233L256 238.2489z" />
+            </svg>
+        </a>
+    </li>
+</ul>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>© 2026 Swarnim Tripathi</span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

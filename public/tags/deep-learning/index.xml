@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Deep-Learning on Swarnim Tripathi</title>
+    <link>http://localhost:1313/tags/deep-learning/</link>
+    <description>Recent content in Deep-Learning on Swarnim Tripathi</description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <copyright>2026 Swarnim Tripathi</copyright>
+    <lastBuildDate>Wed, 01 Jul 2026 23:05:53 +0530</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/deep-learning/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>DISENT-KWS: Teaching a Model to Unlearn Speaker Identity for Robust Keyword Spotting</title>
+      <link>http://localhost:1313/posts/disent-kws/</link>
+      <pubDate>Wed, 01 Jul 2026 23:05:53 +0530</pubDate>
+      <guid>http://localhost:1313/posts/disent-kws/</guid>
+      <description>A deep dive into DISENT-KWS, a 1.8M parameter model that disentangles phonetic content from speaker identity for robust custom word detection. We cover the architecture, the training pipeline, ablation results, and honest reflections on what worked, what did not, and where we would go next.</description>
+    </item>
+  </channel>
+</rss>
