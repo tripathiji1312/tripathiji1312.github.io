@@ -298,8 +298,7 @@ Banerjee, Sohini and Tripathi, Swarnim. "Identity Is Not the Keyword". *Swarnim 
 
 Or use the BibTeX citation:
 
-```
-@misc{bt2026disentkws,
+<pre><code>@misc{bt2026disentkws,
   title={Identity Is Not the Keyword},
   author={Banerjee, Sohini and Tripathi, Swarnim},
   year={2026},
@@ -310,7 +309,7 @@ Or use the BibTeX citation:
         ECAPA-TDNN Lite speaker head, and GRL+CLUB disentanglement.
         1.806M parameters.}
 }
-```
+</code></pre>
 
 ## Code and Reproducibility
 
