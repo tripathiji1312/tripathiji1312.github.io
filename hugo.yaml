@@ -67,7 +67,7 @@ params:
     - name: "linkedin"
       url: "https://linkedin.com/in/swarnim-trip"
     - name: "link"
-      url: "https://tripathiji.vercel.app/"
+      url: "https://www.swarnim.site/"
     - name: "email"
       url: "mailto:swarnim.tr@gmail.com"
 
